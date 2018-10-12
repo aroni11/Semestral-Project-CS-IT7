@@ -39,3 +39,6 @@ A relation is a multi-purpose data structure that documents a relationship betwe
 To successfully build and start the express server, simply use `yarn run build` and `yarn run start`.
 
 **But there are no working endpoints atm... Maybe it will be able to return a good alternative routes one day ;)**
+
+## Are you able to work with repo?
+- Yeah, I am!
