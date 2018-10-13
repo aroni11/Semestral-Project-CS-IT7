@@ -16,7 +16,7 @@ You can check your version by running `node --version` or `mongod --version` res
 Install all packages using [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/lang/en/): `npm install` or simply `yarn` (note: when using yarn, additional option `--ignore-engines` might have to be added to prevent node version errors).
 
 ### Importing data
-Run `mongod & mongosm -v -f "<OSMFileName>.osm"` to import data from .osm file to your local MongoDB. By default a new database called _test_ will be created, with collections _nodes_, _relations_ and _ways_. All data in the database are in the [GeoJSON](http://geojson.org/) format, so [geospatial queries](https://docs.mongodb.com/manual/geospatial-queries/) will be possible in the future.
+Run `mongod & mongosm -v -f "<OSMFileName>.osm"` to import data from .osm file to your local MongoDB. You will probably have to specify a full path to the mongosm script, as it is installed localy by default (or you can run the command using npm/yarn). By default a new database called _test_ will be created, with collections _nodes_, _relations_ and _ways_. All data in the database are in the [GeoJSON](http://geojson.org/) format, so [geospatial queries](https://docs.mongodb.com/manual/geospatial-queries/) will be possible in the future.
 
 You can find more information about these elements in the [OSM wiki](https://wiki.openstreetmap.org/wiki/Elements).
 
