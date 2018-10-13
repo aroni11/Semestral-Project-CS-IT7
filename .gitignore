@@ -1,3 +1,7 @@
+# VSCode settings
+.vscode
+
+# Dist folder
 dist/
 
 ### macOS
