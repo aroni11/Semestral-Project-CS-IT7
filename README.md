@@ -42,3 +42,4 @@ To successfully build and start the express server, simply use `yarn run build` 
 
 ## Are you able to work with repo?
 - Yeah, I am! (Honza)
+- Seems so (Jedi(fla)master)
