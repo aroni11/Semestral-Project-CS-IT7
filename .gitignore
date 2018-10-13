@@ -118,3 +118,6 @@ jspm_packages/
 
 # next.js build output
 .next
+
+#package-lock.json version file
+package-lock.json
