@@ -7,8 +7,8 @@
     "url": "https://github.com/aroni11/Semestral-Project-CS-IT7.git"
   },
   "scripts": {
-    "start": "yarn run serve",
-    "build": "yarn run build-ts && yarn run tslint",
+    "start": "npm run serve",
+    "build": "npm run build-ts && npm run tslint",
     "serve": "node dist/server.js",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
