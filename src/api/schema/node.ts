@@ -14,7 +14,7 @@ export interface INode extends mongoose.Document {
   }
 }
 
-export const nodeSchema = new mongoose.Schema({
+const nodeSchema = new mongoose.Schema({
   _id: Number,
   osm_id: { type: Number },
   type: {type: String, default: 'node'},
