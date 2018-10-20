@@ -13,7 +13,7 @@
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "up-dependencies": "git add package.json package-lock.json && git commit -m \"Updated dependencies\""
+    "up-dependencies": "git add package.json && git commit -m \"Updated dependencies\""
   },
   "contributors": [
     "Ahmet Pekbas <apekba18@student.aau.dk>",
