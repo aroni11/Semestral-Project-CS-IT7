@@ -12,7 +12,7 @@ export interface IWay extends mongoose.Document {
   loc: {
     type: string,
     nodes: number[]
-  }
+  };
 }
 
 const waySchema = new mongoose.Schema({

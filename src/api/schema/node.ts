@@ -9,9 +9,9 @@ const Boolean = Schema.Types.Boolean;
 export interface INode extends mongoose.Document {
   _id: number;
   loc: {
-    type: Object,
+    type: object,
     coordinates: [number]
-  }
+  };
 }
 
 const nodeSchema = new mongoose.Schema({
