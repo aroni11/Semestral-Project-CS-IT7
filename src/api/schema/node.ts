@@ -6,7 +6,15 @@ const Number = Schema.Types.Number;
 const Date = Schema.Types.Date;
 const Boolean = Schema.Types.Boolean;
 
-const nodeSchema = new mongoose.Schema({
+export interface INode extends mongoose.Document {
+  _id: number;
+  loc: {
+    type: Object,
+    coordinates: [number]
+  }
+}
+
+export const nodeSchema = new mongoose.Schema({
   _id: Number,
   osm_id: { type: Number },
   type: {type: String, default: 'node'},
@@ -26,4 +34,4 @@ const nodeSchema = new mongoose.Schema({
   tags: {}
 });
 
-export const Node = mongoose.model('node', nodeSchema);
+export const Node = mongoose.model<INode>('node', nodeSchema);

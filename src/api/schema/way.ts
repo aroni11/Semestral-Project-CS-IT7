@@ -7,6 +7,14 @@ const Date = Schema.Types.Date;
 const Boolean = Schema.Types.Boolean;
 const Array = Schema.Types.Array;
 
+export interface IWay extends mongoose.Document {
+  _id: number;
+  loc: {
+    type: string,
+    nodes: number[]
+  }
+}
+
 const waySchema = new mongoose.Schema({
   _id: Number,
   osm_id: { type: Number, index: 'osm_id'},
@@ -27,4 +35,4 @@ const waySchema = new mongoose.Schema({
   tags: {}
 });
 
-export const Way = mongoose.model('way', waySchema);
+export const Way = mongoose.model<IWay>('way', waySchema);
