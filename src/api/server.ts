@@ -1,17 +1,15 @@
 import express from 'express';
 import mongoose, {ConnectionOptions} from 'mongoose';
+import {GAR_ROADS, MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
 import {Node} from './schema/node';
 import {Relation} from './schema/relation';
 import {Way} from './schema/way';
 
-const MONGO_URI = 'mongodb://localhost/test';
-const MONGO_OPTIONS = { useNewUrlParser: true };
-
 const app = express();
 
-app.listen(8000, () => {
-    connect(MONGO_URI, MONGO_OPTIONS);
-    console.log('Server works!');
+app.listen(SERVER_PORT, () => {
+  connect(MONGO_URI, MONGO_OPTIONS);
+  console.log(`Server is up and listening on port ${SERVER_PORT}`);
 });
 
 app.get('/api/list/:collection', (req, res) => {
@@ -32,7 +30,7 @@ app.get('/api/list/:collection', (req, res) => {
       res.status(400).send('Invalid collection');
   }
 
-  collection.find({}, null, { limit: maxResults }, (err, list) => {
+  collection.find({'tags.highway': {$in: GAR_ROADS}}, null, { limit: maxResults }, (err, list) => {
     if (err) { res.status(503).send(err); }
     res.send(list);
   });
