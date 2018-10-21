@@ -71,6 +71,24 @@ app.get('/api/:collection/:id', async (req, res) => {
   }
 });
 
+app.get('/api/roads', async (req, res) => {
+  const includeAllProperties: boolean = req.query.includeAllProperties !== undefined;
+
+  try {
+    const ways = await Way.find({'tags.highway': {$in: GAR_ROADS}}, includeAllProperties ? null : 'loc', { limit: 10000 });
+    if (!ways) {
+      res.status(404).end();
+    } else {
+      res.send({
+        nodes: 'TODO',
+        ways
+      });
+    }
+  } catch (e) {
+    res.status(503).send(e);
+  }
+});
+
 function connect(mongoURI: string, options: ConnectionOptions): void {
   mongoose.set('useCreateIndex', true);
   mongoose.connect(mongoURI, options);
