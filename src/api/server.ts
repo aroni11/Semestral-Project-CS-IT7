@@ -36,6 +36,38 @@ app.get('/api/list/:collection', (req, res) => {
   });
 });
 
+app.get('/api/:collection/:id', async (req, res) => {
+  let collection;
+
+  switch (req.params.collection) {
+    case 'node':
+      collection = Node;
+      break;
+    case 'way':
+      collection = Way;
+      break;
+    case 'relation':
+      collection = Relation;
+      break;
+    default:
+      res.status(400).send('Invalid collection');
+      return;
+  }
+
+  const includeAllProperties: boolean = req.query.includeAllProperties !== undefined;
+
+  try {
+    const resp = await collection.findById(req.params.id, includeAllProperties ? null : 'loc');
+    if (!resp) {
+      res.status(404).end();
+    } else {
+      res.send(resp);
+    }
+  } catch (e) {
+    res.status(503).send(e);
+  }
+});
+
 function connect(mongoURI: string, options: ConnectionOptions): void {
   mongoose.connect(mongoURI, options);
   const db = mongoose.connection;
