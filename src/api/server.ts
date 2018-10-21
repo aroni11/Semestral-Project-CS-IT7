@@ -9,7 +9,7 @@ const app = express();
 
 app.listen(SERVER_PORT, () => {
   connect(MONGO_URI, MONGO_OPTIONS);
-  console.log(`Server is up and listening on port ${SERVER_PORT}`);
+  console.log(`Server is up and listening on port ${SERVER_PORT}.`);
 });
 
 app.get('/api/list/:collection', async (req, res) => {
@@ -72,6 +72,7 @@ app.get('/api/:collection/:id', async (req, res) => {
 });
 
 function connect(mongoURI: string, options: ConnectionOptions): void {
+  mongoose.set('useCreateIndex', true);
   mongoose.connect(mongoURI, options);
   const db = mongoose.connection;
 
