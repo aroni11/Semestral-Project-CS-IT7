@@ -1,9 +1,9 @@
-import Node from './node';
+import Vertex from './vertex';
 
 class Edge {
   id: number;
-  start: Node;
-  end: Node;
+  start: Vertex;
+  end: Vertex;
   // We will discern a proper structure for this down the line
   costs: {
     distance: number;
