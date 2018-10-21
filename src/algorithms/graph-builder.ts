@@ -1,7 +1,7 @@
 import {INode, Node} from '../api/schema/node';
 import {IWay, Way} from '../api/schema/way';
 
-function randNode(id: number): Node {
+function randNode(id: number): INode {
   return new Node({
     _id : id,
     loc : {
@@ -10,7 +10,7 @@ function randNode(id: number): Node {
     }});
 }
 
-function randWay(id: number, wayNodes: INode[]) {
+function randWay(id: number, wayNodes: INode[]): IWay {
   return new Way({
     _id : id,
     tags : {
@@ -23,15 +23,13 @@ function randWay(id: number, wayNodes: INode[]) {
     }});
 }
 
-const dummyData = {
-  nodes: Array<INode>(),
-  ways: Array<IWay>()
-};
+const nodes: INode[] = [];
+const ways: IWay[] = [];
 
 for (let i = 0; i < 20; i++) {
-  dummyData.nodes.push(randNode(i));
+  nodes.push(randNode(i));
 }
+ways.push(randWay(1, nodes));
 
-dummyData.ways.push(randWay(1, dummyData.nodes));
-
-console.log(dummyData);
+console.log(nodes);
+console.log(ways);
