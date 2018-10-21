@@ -27,4 +27,4 @@ const waySchema = new mongoose.Schema({
   tags: {}
 });
 
-export const Way = mongoose.model('way', waySchema);
+export const Way = mongoose.model('way', waySchema, 'ways');
