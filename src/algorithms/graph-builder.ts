@@ -1,7 +1,7 @@
 import {INode, Node} from '../api/schema/node';
 import {IWay, Way} from '../api/schema/way';
 
-function randNode(id: number) {
+function randNode(id: number): Node {
   return new Node({
     _id : id,
     loc : {
