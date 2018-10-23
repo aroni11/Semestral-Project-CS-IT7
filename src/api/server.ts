@@ -85,7 +85,7 @@ app.get('/api/roads', async (req, res) => {
           .reduce((acc: number[], val: number) => acc.concat(val))
       ).values();
 
-      const nodes = await Node.find({_id: {$in: [...nodeIDs]}});
+      const nodes = await Node.find({_id: {$in: [...nodeIDs]}}, includeAllProperties ? null : 'loc');
 
       res.send({
         nodes,
