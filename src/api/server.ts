@@ -1,9 +1,9 @@
 import express from 'express';
 import mongoose, {ConnectionOptions} from 'mongoose';
-import {GAR_ROADS, MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
-import {Node} from './schema/node';
-import {Relation} from './schema/relation';
-import {IWay, Way} from './schema/way';
+import {MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
+import {findByIdHandler} from './handlers/findById';
+import {listHandler} from './handlers/list';
+import {roadsHandler} from './handlers/roads';
 
 const app = express();
 
@@ -12,90 +12,11 @@ app.listen(SERVER_PORT, () => {
   console.log(`Server is up and listening on port ${SERVER_PORT}.`);
 });
 
-app.get('/api/list/:collection', async (req, res) => {
-  let collection;
+app.get('/api/list/:collection', listHandler);
 
-  switch (req.params.collection) {
-    case 'nodes':
-      collection = Node;
-      break;
-    case 'ways':
-      collection = Way;
-      break;
-    case 'relations':
-      collection = Relation;
-      break;
-    default:
-      res.status(400).send('Invalid collection');
-      return;
-  }
+app.get('/api/:collection/:id', findByIdHandler);
 
-  const maxResults: number = req.query.limit === undefined ? 50000 : Number(req.query.limit);
-
-  try {
-    res.send(await collection.find({}, null, { limit: maxResults }));
-  } catch (e) {
-    res.status(503).send(e);
-  }
-});
-
-app.get('/api/:collection/:id', async (req, res) => {
-  let collection;
-
-  switch (req.params.collection) {
-    case 'node':
-      collection = Node;
-      break;
-    case 'way':
-      collection = Way;
-      break;
-    case 'relation':
-      collection = Relation;
-      break;
-    default:
-      res.status(400).send('Invalid collection');
-      return;
-  }
-
-  const includeAllProperties: boolean = req.query.includeAllProperties !== undefined;
-
-  try {
-    const resp = await collection.findById(req.params.id, includeAllProperties ? null : 'loc');
-    if (!resp) {
-      res.status(404).end();
-    } else {
-      res.send(resp);
-    }
-  } catch (e) {
-    res.status(503).send(e);
-  }
-});
-
-app.get('/api/roads', async (req, res) => {
-  const includeAllProperties: boolean = req.query.includeAllProperties !== undefined;
-
-  try {
-    const ways = await Way.find({'tags.highway': {$in: GAR_ROADS}}, includeAllProperties ? null : 'loc', { limit: 10000 }).lean();
-    if (!ways) {
-      res.status(404).end();
-    } else {
-      const nodeIDs = new Set(
-        ways
-          .map((way: IWay) => way.loc.nodes)
-          .reduce((acc: number[], val: number) => acc.concat(val))
-      ).values();
-
-      const nodes = await Node.find({_id: {$in: [...nodeIDs]}}, includeAllProperties ? null : 'loc');
-
-      res.send({
-        nodes,
-        ways
-      });
-    }
-  } catch (e) {
-    res.status(503).send(e);
-  }
-});
+app.get('/api/roads', roadsHandler);
 
 function connect(mongoURI: string, options: ConnectionOptions): void {
   mongoose.set('useCreateIndex', true);
