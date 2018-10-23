@@ -3,7 +3,7 @@ import mongoose, {ConnectionOptions} from 'mongoose';
 import {GAR_ROADS, MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
 import {Node} from './schema/node';
 import {Relation} from './schema/relation';
-import {Way} from './schema/way';
+import {IWay, Way} from './schema/way';
 
 const app = express();
 
@@ -75,12 +75,20 @@ app.get('/api/roads', async (req, res) => {
   const includeAllProperties: boolean = req.query.includeAllProperties !== undefined;
 
   try {
-    const ways = await Way.find({'tags.highway': {$in: GAR_ROADS}}, includeAllProperties ? null : 'loc', { limit: 10000 });
+    const ways = await Way.find({'tags.highway': {$in: GAR_ROADS}}, includeAllProperties ? null : 'loc', { limit: 10000 }).lean();
     if (!ways) {
       res.status(404).end();
     } else {
+      const nodeIDs = new Set(
+        ways
+          .map((way: IWay) => way.loc.nodes)
+          .reduce((acc: number[], val: number) => acc.concat(val))
+      ).values();
+
+      const nodes = await Node.find({_id: {$in: [...nodeIDs]}});
+
       res.send({
-        nodes: 'TODO',
+        nodes,
         ways
       });
     }
