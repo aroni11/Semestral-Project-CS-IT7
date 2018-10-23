@@ -10,7 +10,7 @@ export interface INode extends mongoose.Document {
   _id: number;
   loc: {
     type: object,
-    coordinates: [number]
+    coordinates: number[]
   };
 }
 
