@@ -1,44 +1,31 @@
+import bodyParser from 'body-parser';
 import express from 'express';
 import mongoose, {ConnectionOptions} from 'mongoose';
-import {Node} from './schema/node';
-import {Relation} from './schema/relation';
-import {Way} from './schema/way';
-
-const MONGO_URI = 'mongodb://localhost/test';
-const MONGO_OPTIONS = { useNewUrlParser: true };
+import {MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
+import {findByIdHandler} from './handlers/findById';
+import {listHandler} from './handlers/list';
+import {nodesWithinHandler} from './handlers/nodesWithin';
+import {roadsHandler} from './handlers/roads';
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.listen(8000, () => {
-    connect(MONGO_URI, MONGO_OPTIONS);
-    console.log('Server works!');
+app.listen(SERVER_PORT, () => {
+  connect(MONGO_URI, MONGO_OPTIONS);
+  console.log(`Server is up and listening on port ${SERVER_PORT}.`);
 });
 
-app.get('/api/list/:collection', (req, res) => {
-  const maxResults: number = req.query.limit === undefined ? 50000 : Number(req.query.limit);
-  let collection;
+app.get('/api/list/:collection', listHandler);
 
-  switch (req.params.collection) {
-    case 'nodes':
-      collection = Node;
-      break;
-    case 'ways':
-      collection = Way;
-      break;
-    case 'relations':
-      collection = Relation;
-      break;
-    default:
-      res.status(400).send('Invalid collection');
-  }
+app.get('/api/:collection/:id', findByIdHandler);
 
-  collection.find({}, null, { limit: maxResults }, (err, list) => {
-    if (err) { res.status(503).send(err); }
-    res.send(list);
-  });
-});
+app.get('/api/roads', roadsHandler);
+
+app.post('/api/within', nodesWithinHandler);
 
 function connect(mongoURI: string, options: ConnectionOptions): void {
+  mongoose.set('useCreateIndex', true);
   mongoose.connect(mongoURI, options);
   const db = mongoose.connection;
 

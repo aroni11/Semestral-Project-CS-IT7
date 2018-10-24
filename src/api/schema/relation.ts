@@ -23,4 +23,4 @@ const relationSchema = new mongoose.Schema({
   tags: {}
 });
 
-export const Relation = mongoose.model('relation', relationSchema);
+export const Relation = mongoose.model('relation', relationSchema, 'relations');
