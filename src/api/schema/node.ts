@@ -10,7 +10,7 @@ export interface INode extends mongoose.Document {
   _id: number;
   loc: {
     type: object,
-    coordinates: [number]
+    coordinates: [number, number]
   };
 }
 
@@ -34,4 +34,4 @@ const nodeSchema = new mongoose.Schema({
   tags: {}
 });
 
-export const Node = mongoose.model<INode>('node', nodeSchema);
+export const Node = mongoose.model<INode>('node', nodeSchema, 'nodes');
