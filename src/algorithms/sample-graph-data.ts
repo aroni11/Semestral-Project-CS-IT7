@@ -3,7 +3,7 @@ import Vertex from './models/vertex'
 import EdgeCost from './models/edgecost'
 import {INode, Node} from '../api/schema/node';
 
-export const sampleGraph = new Graph();
+const sampleGraph = new Graph();
 
 function getNode(id: number, x: number, y: number): INode {
     return new Node({
@@ -211,3 +211,5 @@ Vertex 21
 Neighbor 20: Cost = 8
 */
 sampleGraph.getVertex(21).addNeighbor(ec8, sampleGraph.getVertex(20))
+
+export default sampleGraph

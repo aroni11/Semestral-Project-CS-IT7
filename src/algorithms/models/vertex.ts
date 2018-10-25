@@ -28,7 +28,7 @@ class Vertex {
   constructor(node: INode) {
     this.lng = node.loc.coordinates[0];
     this.lat = node.loc.coordinates[1];
-    this.id = node.id;
+    this.id = node._id;
   }
 
   /**
