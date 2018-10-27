@@ -1,7 +1,7 @@
 import EdgeCost from './models/edgecost';
 import Graph from './models/graph';
 import Vertex from './models/vertex';
-import {getNode} from './sample-api-data'
+import {getNode} from './sample-api-data';
 
 const sampleGraph = new Graph();
 

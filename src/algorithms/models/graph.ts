@@ -31,9 +31,10 @@ export default class Graph {
      * Get function which returns a certain Vertex inside the Vertices dictionary
      * @param id : The ID of the Vertex object to be returned
      */
-    getVertex(id: number) : Vertex{
-        if(!this.vertices.has(id))
+    getVertex(id: number): Vertex {
+        if (!this.vertices.has(id)) {
             throw new Error('Vertex ID not found!');
+        }
         return this.vertices.get(id);
     }
 }
