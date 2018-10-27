@@ -35,6 +35,13 @@ class Vertex {
     this.id = node._id;
   }
 
+  /**
+   * Increment in-degree. To be called whenever a neighbor is added
+   */
+  public incrInDegree(): void {
+    this.inDegree++;
+  }
+
   /*
    * Number of edges directed FROM this Vertex
    * Counted as the number of neighbors.
@@ -47,6 +54,7 @@ class Vertex {
    * Add a neighbor with edge
    */
   addNeighbor(costs: EdgeCost, vertex: Vertex): void {
+    vertex.incrInDegree();
     this.neighbors.push({
       costs,
       vertex
@@ -55,11 +63,3 @@ class Vertex {
 }
 
 export default Vertex;
-
-export const nodesToVertices = (nodes: INode[]): Vertex[] => {
-  const vs = [];
-  for (const node of nodes) {
-    vs.push(new Vertex(node));
-  }
-  return vs;
-};
