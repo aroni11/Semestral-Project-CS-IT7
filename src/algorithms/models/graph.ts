@@ -7,8 +7,8 @@ import Vertex from './vertex';
 export default class Graph {
     /**
      * Map objects for the graph sample
-     */    
-    private readonly vertices: Map<number, Vertex>;        
+     */
+    private readonly vertices: Map<number, Vertex>;
 
     /**
      * Initializes new Map objects for the Vertices and Edges displayed on the graph
@@ -21,8 +21,8 @@ export default class Graph {
      * Adds a Vertex object or number of Vertex objects into the vertices Map object
      * @param x : Vertex object
      */
-    addVertex(...x: Vertex[]) : void {
-        for(const v of x) {
+    addVertex(...x: Vertex[]): void {
+        for (const v of x) {
             this.vertices.set(v.id, v);
         }
     }
@@ -31,13 +31,12 @@ export default class Graph {
      * Get function which returns a certain Vertex inside the Vertices dictionary
      * @param id : The ID of the Vertex object to be returned
      */
-    getVertex(id : number) {
+    getVertex(id: number) {
         /*
         For some reason I cannot access the key values in vertices in a Graph object!
         if(!(id in this.vertices))
-            throw new Error('Vertex ID not found!') 
-            
+            throw new Error('Vertex ID not found!')
         else*/
-        return this.vertices.get(id);                       
+        return this.vertices.get(id);
     }
 }
