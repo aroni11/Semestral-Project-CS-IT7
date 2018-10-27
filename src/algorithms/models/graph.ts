@@ -11,7 +11,7 @@ export default class Graph {
     private readonly vertices: Map<number, Vertex>;
 
     /**
-     * Initializes new Map objects for the Vertices and Edges displayed on the graph
+     * Initializes new Map objects for the Vertices displayed on the graph
      */
     constructor() {
         this.vertices = new Map<number, Vertex>();
@@ -31,7 +31,7 @@ export default class Graph {
      * Get function which returns a certain Vertex inside the Vertices dictionary
      * @param id : The ID of the Vertex object to be returned
      */
-    getVertex(id: number) {
+    getVertex(id: number) : Vertex{
         if(!this.vertices.has(id))
             throw new Error('Vertex ID not found!');
         return this.vertices.get(id);
