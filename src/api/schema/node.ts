@@ -9,7 +9,7 @@ const Boolean = Schema.Types.Boolean;
 export interface INode extends mongoose.Document {
   _id: number;
   loc: {
-    type: object,
+    type: string,
     coordinates: [number, number]
   };
 }
