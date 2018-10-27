@@ -2,17 +2,9 @@ import {INode, Node} from '../api/schema/node';
 import EdgeCost from './models/edgecost';
 import Graph from './models/graph';
 import Vertex from './models/vertex';
+import {getNode} from './sample-api-data'
 
 const sampleGraph = new Graph();
-
-function getNode(id: number, x: number, y: number): INode {
-    return {
-      _id : id,
-      loc : {
-        type : 'Point',
-        coordinates : [x, y]
-      }} as INode;
-  }
 
 sampleGraph.addVertex(
     new Vertex(getNode(1, 4, 1)),

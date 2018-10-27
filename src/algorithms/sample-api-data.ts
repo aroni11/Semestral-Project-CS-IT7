@@ -1,7 +1,7 @@
 import {INode, Node} from '../api/schema/node';
 import {IWay, Way} from '../api/schema/way';
 
-function getNode(id: number, x: number, y: number): INode {
+export function getNode(id: number, x: number, y: number): INode {
   return {
     _id : id,
     loc : {
@@ -10,7 +10,7 @@ function getNode(id: number, x: number, y: number): INode {
     }} as INode;
 }
 
-function getWay(id: number, wayNodes: INode[]): IWay {
+export function getWay(id: number, wayNodes: INode[]): IWay {
   return new Way({
     _id : id,
     tags : {
