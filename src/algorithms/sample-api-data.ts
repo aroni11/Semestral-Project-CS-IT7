@@ -2,12 +2,12 @@ import {INode, Node} from '../api/schema/node';
 import {IWay, Way} from '../api/schema/way';
 
 function getNode(id: number, x: number, y: number): INode {
-  return new Node({
+  return {
     _id : id,
     loc : {
       type : 'Point',
       coordinates : [x, y]
-    }});
+    }} as INode;
 }
 
 function getWay(id: number, wayNodes: INode[]): IWay {

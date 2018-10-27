@@ -6,12 +6,12 @@ import Vertex from './models/vertex';
 const sampleGraph = new Graph();
 
 function getNode(id: number, x: number, y: number): INode {
-    return new Node({
+    return {
       _id : id,
       loc : {
         type : 'Point',
         coordinates : [x, y]
-      }});
+      }} as INode;
   }
 
 sampleGraph.addVertex(
