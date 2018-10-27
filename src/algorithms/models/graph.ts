@@ -8,13 +8,13 @@ export default class Graph {
     /**
      * Map objects for the graph sample
      */
-    private readonly vertices: Map<number, Vertex>;
+    private readonly _vertices: Map<number, Vertex>;
 
     /**
      * Initializes new Map objects for the Vertices displayed on the graph
      */
     constructor() {
-        this.vertices = new Map<number, Vertex>();
+        this._vertices = new Map<number, Vertex>();
     }
 
     /**
@@ -23,7 +23,7 @@ export default class Graph {
      */
     addVertex(...x: Vertex[]): void {
         for (const v of x) {
-            this.vertices.set(v.id, v);
+            this._vertices.set(v.id, v);
         }
     }
 
@@ -36,5 +36,12 @@ export default class Graph {
             throw new Error('Vertex ID not found!');
         }
         return this.vertices.get(id);
+    }
+
+    /*
+    * Get all vertices in this graph
+    */
+    get vertices(): Map<number, Vertex> {
+      return this._vertices;
     }
 }
