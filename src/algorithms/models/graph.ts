@@ -32,11 +32,8 @@ export default class Graph {
      * @param id : The ID of the Vertex object to be returned
      */
     getVertex(id: number) {
-        /*
-        For some reason I cannot access the key values in vertices in a Graph object!
-        if(!(id in this.vertices))
-            throw new Error('Vertex ID not found!')
-        else*/
+        if(!this.vertices.has(id))
+            throw new Error('Vertex ID not found!');
         return this.vertices.get(id);
     }
 }
