@@ -52,13 +52,13 @@ export default class Graph {
     public graphVizString(): string {
       const iterator = this.vertices;
       let next = iterator.next();
-      let out = '';
+      let out = 'digraph {';
       while (!next.done) {
         for (const edge of next.value.neighbors) {
           out += next.value.id + ' -> ' + edge.vertex.id + '\n';
         }
         next = iterator.next();
       }
-      return out;
+      return out + '}';
     }
 }

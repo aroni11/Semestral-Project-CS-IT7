@@ -155,9 +155,7 @@ export default class GraphSimplifier {
 
 const s = new GraphSimplifier(sampleGraph, sampleGraph.getVertex(1), sampleGraph.getVertex(21));
 
-s.simplifyGraph();
 // Run the simplification as many times as you want, once the "perfect" graph is achieved
+s.simplifyGraph();
 
-console.log('digraph {');
 console.log(sampleGraph.graphVizString());
-console.log('}');
