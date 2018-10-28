@@ -7,13 +7,13 @@ export default class Graph {
     /**
      * Map objects for the graph sample
      */
-    private readonly _vertices: Map<number, Vertex>;
+    private readonly verticesMap: Map<number, Vertex>;
 
     /**
      * Initializes new Map objects for the Vertices displayed on the graph
      */
     constructor() {
-        this._vertices = new Map<number, Vertex>();
+        this.verticesMap = new Map<number, Vertex>();
     }
 
     /**
@@ -22,7 +22,7 @@ export default class Graph {
      */
     addVertex(...x: Vertex[]): void {
         for (const v of x) {
-            this._vertices.set(v.id, v);
+            this.verticesMap.set(v.id, v);
         }
     }
 
@@ -31,10 +31,10 @@ export default class Graph {
      * @param id : The ID of the Vertex object to be returned
      */
     getVertex(id: number): Vertex {
-        if (!this._vertices.has(id)) {
+        if (!this.verticesMap.has(id)) {
             throw new Error('Vertex ID not found!');
         }
-        return this._vertices.get(id);
+        return this.verticesMap.get(id);
     }
 
     /**
@@ -42,7 +42,7 @@ export default class Graph {
      * @return Iterator which can be used to walk through all the vertices in this graph.
      */
     get vertices(): Iterator<Vertex> {
-      return this._vertices.values();
+      return this.verticesMap.values();
     }
 
     /**
