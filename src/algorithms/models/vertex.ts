@@ -22,7 +22,7 @@ class Vertex {
   */
   inDegree = 0;
   /**
-   * Array containing all neighbors of a Vertex, including associated edge
+   * Array containing all neighbors of a Vertex, including costs of path to them
    */
   neighbors?: Array<{
     vertex: Vertex;
@@ -42,10 +42,10 @@ class Vertex {
     this.inDegree++;
   }
 
-  /*
+  /**
    * Number of edges directed FROM this Vertex
    * Counted as the number of neighbors.
-  */
+   */
   get outDegree(): number {
     return this.neighbors.length;
   }
