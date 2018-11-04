@@ -33,8 +33,26 @@ export default class Graph {
      */
     getVertex(id: number): Vertex {
         if (!this.vertices.has(id)) {
-            throw new Error('Vertex ID not found!');
+            throw new Error('Vertex ' + id + ' not found!');
         }
         return this.vertices.get(id);
+    }
+
+    /**
+     * Get function which returns the number of vertices in the graph
+     */
+    getSize(): number {
+        return this.vertices.size;
+    }
+
+    /**
+     * Get function which returns a set of all vertex IDs contained within the graph
+     */
+    getVertexIDs(): Set<number> {
+        const idSet = new Set<number>();
+        for (const vertex of this.vertices.values()) {
+            idSet.add(vertex.id);
+        }
+        return idSet;
     }
 }
