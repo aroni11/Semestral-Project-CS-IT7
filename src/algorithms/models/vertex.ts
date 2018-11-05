@@ -17,6 +17,10 @@ class Vertex {
    * Longitudinal coordinate
    */
   lng: number;
+  /*
+  * Number of edges directed TO this Vertex
+  */
+  inDegree: number = 0;
   /**
    * Array containing all neighbors of a Vertex, including associated edge
    */
@@ -29,6 +33,14 @@ class Vertex {
     this.lng = node.loc.coordinates[0];
     this.lat = node.loc.coordinates[1];
     this.id = node._id;
+  }
+
+  /*
+   * Number of edges directed FROM this Vertex
+   * Counted as the number of neighbors.
+  */
+  get outDegree(): number {
+    return this.neighbors.length;
   }
 
   /**
