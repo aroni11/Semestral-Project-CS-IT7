@@ -64,6 +64,49 @@ class Vertex {
     this.neighbors.delete(edge);
     edge.vertex.inDegree -= 1;
   }
+
+  /**
+   * Method verifies whether there is an edge back from the 'from' vertex back to this vertex
+   * If there is at least one edge from 'from' vertex' to this vertex true is returned. Otherwise false.
+   * @param from : Vertex Vertex to get back from
+   * @return boolean
+   */
+  canGetBack(from: Vertex): boolean {
+    for (const edge of from.neighbors) {
+      if (edge.vertex === this) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Method verifies whether the inDegree and outDegree of the vertex is the same and whether it is equal to the degree
+   * True is returned when both degrees are equal to the degree parameter. Otherwise false.
+   * @param degree : number outDegree and inDegree that should be equal to
+   * @return boolean
+   */
+  equalDegrees(degree: number): boolean {
+    if (this.inDegree !== this.outDegree) {
+      return false;
+    }
+    return this.outDegree === degree;
+  }
+
+  /**
+   * Get the first edge that leads to other vertex than notThisVertex
+   * This is useful when you are sure that there are only two edges leaving the vertex.
+   * @param notThisVertex : Vertex Edge to this vertex will not be returned
+   * @return object
+   */
+  getEdgeOtherNeighbor(notThisVertex: Vertex): {vertex: Vertex, costs: EdgeCost} {
+    for (const edge of this.neighbors) {
+      if (edge.vertex !== notThisVertex) {
+        return edge;
+      }
+    }
+    return null;
+  }
 }
 
 export default Vertex;
