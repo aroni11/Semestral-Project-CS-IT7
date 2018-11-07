@@ -7,70 +7,12 @@ import Vertex from './vertex';
 export default class Graph {
 
   /**
-   * Examines all the neighbors of the observer vertex and tries to bypass them by creating a new edge
-   * Method iterates over the set of edges of observer. It tries to remove vertices that are not crossings.
-   * If there is a neighbor of observer which can be removed (see canBeFiltered for criteria) a new edge
-   * from observer to the neighbor's neighbor is created and the old edges observer->neighbor and
-   * neighbor->neighbor's neighbor are removed from the graph.
-   * @param observer : Vertex Vertex whose neighbors are going to be bypassed
-   * @param start : Query start vertex
-   * @param end : Query destination vertex
-   */
-  private static filterVertexNeighbors(observer: Vertex, start: Vertex, end: Vertex): void {
-    for (const edge of observer.neighbors) {
-      if (!Graph.canBeFiltered(edge.vertex, start, end)) {
-        continue;
-      }
-      let secondEdge = edge.vertex.getEdgeOtherNeighbor(observer);
-      if (secondEdge !== null) {
-        observer.addNeighbor(EdgeCost.combine(edge.costs, secondEdge.costs), secondEdge.vertex);
-      } else {
-        secondEdge = edge.vertex.neighbors.values().next().value;
-      }
-      edge.vertex.removeNeighbor(secondEdge);
-      observer.removeNeighbor(edge);
-    }
-  }
-
-  /**
-   * Method decides whether a vertex can be removed from graph or not
-   * Start vertex and end vertex can never be removed. We can filter out vertices that fall under one of the
-   * following categories:
-   * 1. Vertex inDegree and outDegree are 1. That means that vertex is the middle element of a simple path.
-   * 2. Vertex inDegree and outDegree are 2 and one can get back from all the neighbors in just one step. That means
-   * that the vertex is the middle element of a simple bidirectional path.
-   * @param vertex : Vertex Vertex that is evaluated
-   * @param start : Query start vertex
-   * @param end : Query destination vertex
-   */
-  private static canBeFiltered(vertex: Vertex, start: Vertex, end: Vertex): boolean {
-    if (vertex === start || vertex === end) {
-      return false;
-    }
-
-    if (vertex.equalDegrees(1)) {
-      return true;
-    }
-
-    if (vertex.equalDegrees(2)) {
-      for (const neighbor of vertex.neighbors) {
-        // Return false in case there is a neighbor from which you cannot get back
-        if (!(vertex.canGetBack(neighbor.vertex))) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * Map objects for the graph sample
    */
   private readonly verticesMap: Map<number, Vertex>;
 
   /**
-   * Initializes new Map objects for the Vertices displayed on the graph
+   * Initializes new Map object for the Vertices displayed on the graph
    */
   constructor() {
       this.verticesMap = new Map<number, Vertex>();
@@ -129,7 +71,7 @@ export default class Graph {
    * @param runs : number  How many times should the simplification be performed
    * @return Graph Simplified graph object
    */
-  simplifyGraph(start: Vertex, end: Vertex, runs: number): Graph {
+  simplifyGraph(start: Vertex, end: Vertex, runs: number = 1): Graph {
     for (let i = 0; i < runs; i++) {
       this.simplificationRound(start, end);
     }
@@ -143,13 +85,12 @@ export default class Graph {
    * @param end : Vertex Query destination vertex
    * @return Graph Simplified graph object
    */
-  private simplificationRound(start: Vertex, end: Vertex): Graph {
+  private simplificationRound(start: Vertex, end: Vertex): void {
     const it = this.vertices;
     let next = it.next();
     while (!next.done) {
-      Graph.filterVertexNeighbors(next.value, start, end);
+      next.value.bypassNeighbors(start, end);
       next = it.next();
     }
-    return this;
   }
 }

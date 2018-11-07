@@ -1,6 +1,12 @@
 import { INode } from '../../api/schema/node';
 import EdgeCost from './edgecost';
 
+enum Simplification {
+  OneWay,
+  TwoWay,
+  NotPossible
+}
+
 /**
  * Vertices represent geographical points of interest
  */
@@ -106,6 +112,74 @@ class Vertex {
       }
     }
     return null;
+  }
+
+  /**
+   * Examines all the neighbors of this vertex and tries to bypass them by creating a new edge
+   * Method iterates over the set of edges. It tries to remove vertices that are not crossings.
+   * If there is a neighbor which can be removed (see canBeFiltered for criteria) a new edge
+   * from this vertex to the neighbor's neighbor is created and the old edges this->neighbor and
+   * neighbor->neighbor's neighbor are removed from the graph.
+   * @param start : Query start vertex
+   * @param end : Query destination vertex
+   */
+  bypassNeighbors(start: Vertex, end: Vertex): void {
+    for (const edge of this.neighbors) {
+      const decision = edge.vertex.canBeFiltered(start, end);
+      let secondEdge;
+
+      switch (decision) {
+        case Simplification.NotPossible:
+          continue;
+        case Simplification.OneWay:
+          secondEdge = edge.vertex.neighbors.values().next().value;
+          break;
+        case Simplification.TwoWay:
+          secondEdge = edge.vertex.getEdgeOtherNeighbor(this);
+          break;
+        default:
+          throw new Error('Unknown result value.');
+      }
+
+      // add bypassing edge in case the original edge does not lead back to observer
+      if (secondEdge.vertex !== this) {
+        this.addNeighbor(EdgeCost.combine(edge.costs, secondEdge.costs), secondEdge.vertex);
+      }
+
+      edge.vertex.removeNeighbor(secondEdge);
+      this.removeNeighbor(edge);
+    }
+  }
+
+  /**
+   * Method decides whether this vertex can be removed from graph or not
+   * Start vertex and end vertex can never be removed. We can filter out vertices that fall under one of the
+   * following categories:
+   * 1. Vertex inDegree and outDegree are 1. That means that vertex is the middle element of a simple path.
+   * 2. Vertex inDegree and outDegree are 2 and one can get back from all the neighbors in just one step. That means
+   * that the vertex is the middle element of a simple bidirectional path.
+   * @param start : Query start vertex
+   * @param end : Query destination vertex
+   */
+  canBeFiltered(start: Vertex, end: Vertex): Simplification {
+    if (this === start || this === end) {
+      return Simplification.NotPossible;
+    }
+
+    if (this.equalDegrees(1)) {
+      return Simplification.OneWay;
+    }
+
+    if (this.equalDegrees(2)) {
+      for (const neighbor of this.neighbors) {
+        // Return false in case there is a neighbor from which you cannot get back
+        if (!(this.canGetBack(neighbor.vertex))) {
+          return Simplification.NotPossible;
+        }
+      }
+      return Simplification.TwoWay;
+    }
+    return Simplification.NotPossible;
   }
 }
 
