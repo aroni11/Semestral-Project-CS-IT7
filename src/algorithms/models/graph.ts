@@ -32,7 +32,10 @@ export default class Graph {
    * @param id : The ID of the Vertex object to be returned
    */
   getVertex(id: number): Vertex {
-    return this._vertices.get(id);
+    if (this._vertices.has(id)) {
+      return this._vertices.get(id);
+    }
+    throw new Error('Vertex ' + id + ' not found');
   }
 
   /*
