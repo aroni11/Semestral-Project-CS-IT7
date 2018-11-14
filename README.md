@@ -43,3 +43,4 @@ To successfully build and start the express server, simply use `npm run build` a
 ## Are you able to work with repo?
 - Yeah, I am! (Honza)
 - Seems so (Jedi(fla)master)
+- Vlad
