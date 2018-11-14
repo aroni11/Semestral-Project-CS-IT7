@@ -38,13 +38,13 @@ export default class Graph {
       }
       return this.verticesMap.get(id);
   }
-  
+
   /**
    * Get function which returns a set of all vertex IDs contained within the graph
    */
   getVertexIDs(): Set<number> {
       const idSet = new Set<number>();
-      for (const vertex of this.vertices.values()) {
+      for (const vertex of this.verticesMap.values()) {
           idSet.add(vertex.id);
       }
       return idSet;
@@ -74,7 +74,6 @@ export default class Graph {
     }
     return out + '}';
   }
-
 
   /**
    * Runs the simplification process several times
