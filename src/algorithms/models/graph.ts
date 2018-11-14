@@ -8,18 +8,6 @@ export default class Graph {
   /**
    * Map objects for the graph sample
    */
-  private readonly _vertices: Map<number, Vertex>;
-
-  /**
-   * Initializes new Map objects for the Vertices displayed on the graph
-   */
-  constructor() {
-    this._vertices = new Map<number, Vertex>();
-  }
-
-  /**
-   * Map objects for the graph sample
-   */
   private readonly verticesMap: Map<number, Vertex>;
 
   /**
