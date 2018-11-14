@@ -3,24 +3,26 @@ import {IWay, Way} from '../api/schema/way';
 
 export function getNode(id: number, x: number, y: number): INode {
   return {
-    _id : id,
-    loc : {
-      type : 'Point',
-      coordinates : [x, y]
-    }} as INode;
+      _id : id,
+      loc : {
+        type : 'Point',
+        coordinates : [x, y]
+      }
+    } as INode;
 }
 
 export function getWay(id: number, wayNodes: INode[]): IWay {
   return new Way({
-    _id : id,
-    tags : {
-      highway : 'primary'
-    },
-    loc : {
-      type : 'Polygon',
-      coordinates : [],
-      nodes : wayNodes.map((x: INode) => x._id)
-    }});
+      _id : id,
+      tags : {
+        highway : 'primary'
+      },
+      loc : {
+        type : 'Polygon',
+        coordinates : [],
+        nodes : wayNodes.map((x: INode) => x._id)
+      }
+    });
 }
 
 const _nodes: INode[] = [

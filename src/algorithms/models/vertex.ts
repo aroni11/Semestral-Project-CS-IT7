@@ -28,7 +28,7 @@ class Vertex {
   */
   inDegree = 0;
   /**
-   * Array containing all neighbors of a Vertex, including associated edge
+   * Array containing all neighbors of a Vertex, including costs of path to them
    */
   neighbors?: Set<{
     vertex: Vertex;
@@ -41,10 +41,17 @@ class Vertex {
     this.id = node._id;
   }
 
-  /*
+  /**
+   * Increment in-degree. To be called whenever a neighbor is added
+   */
+  public incrInDegree(): void {
+    this.inDegree++;
+  }
+
+  /**
    * Number of edges directed FROM this Vertex
    * Counted as the number of neighbors.
-  */
+   */
   get outDegree(): number {
     return this.neighbors.size;
   }
@@ -53,11 +60,11 @@ class Vertex {
    * Add a neighbor with edge
    */
   addNeighbor(costs: EdgeCost, vertex: Vertex): void {
+    vertex.incrInDegree();
     this.neighbors.add({
       costs,
       vertex
     });
-    vertex.inDegree += 1;
   }
 
   /**
@@ -184,11 +191,3 @@ class Vertex {
 }
 
 export default Vertex;
-
-export const nodesToVertices = (nodes: INode[]): Vertex[] => {
-  const vs = [];
-  for (const node of nodes) {
-    vs.push(new Vertex(node));
-  }
-  return vs;
-};

@@ -5,6 +5,17 @@ import Vertex from './vertex';
  * Graph object for creating a sample graph using Vertex and Edge objects
  */
 export default class Graph {
+  /**
+   * Map objects for the graph sample
+   */
+  private readonly _vertices: Map<number, Vertex>;
+
+  /**
+   * Initializes new Map objects for the Vertices displayed on the graph
+   */
+  constructor() {
+    this._vertices = new Map<number, Vertex>();
+  }
 
   /**
    * Map objects for the graph sample

@@ -1,7 +1,8 @@
+import graphBuilder from './graph-builder';
 import EdgeCost from './models/edgecost';
 import Graph from './models/graph';
 import Vertex from './models/vertex';
-import {getNode} from './sample-api-data';
+import data, {getNode} from './sample-api-data';
 
 const sampleGraph = new Graph();
 
@@ -202,5 +203,7 @@ Vertex 21
 Neighbor 20: Cost = 8
 */
 sampleGraph.getVertex(21).addNeighbor(ec8, sampleGraph.getVertex(20));
+
+console.log(graphBuilder(data.nodes.slice(1), data.ways));
 
 export default sampleGraph;
