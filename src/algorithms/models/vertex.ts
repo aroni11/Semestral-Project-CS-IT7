@@ -1,3 +1,4 @@
+import {Error} from 'tslint/lib/error';
 import { INode } from '../../api/schema/node';
 import EdgeCost from './edgecost';
 
@@ -147,13 +148,12 @@ class Vertex {
         default:
           throw new Error('Unknown result value.');
       }
-
       // add bypassing edge in case the original edge does not lead back to observer
-      if (secondEdge.vertex !== this) {
+      if (secondEdge !== null && secondEdge.vertex !== this) {
         this.addNeighbor(EdgeCost.combine(edge.costs, secondEdge.costs), secondEdge.vertex);
       }
 
-      edge.vertex.removeNeighbor(secondEdge);
+      if (secondEdge !== null) { edge.vertex.removeNeighbor(secondEdge); }
       this.removeNeighbor(edge);
     }
   }

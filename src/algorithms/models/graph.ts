@@ -33,7 +33,7 @@ export default class Graph {
    */
   getVertex(id: number): Vertex {
       if (!this.verticesMap.has(id)) {
-          throw new Error('Vertex ID not found!');
+          throw new Error(`Vertex ${id} not found!`);
       }
       return this.verticesMap.get(id);
   }
@@ -81,9 +81,12 @@ export default class Graph {
    * @param runs : number  How many times should the simplification be performed
    * @return Graph Simplified graph object
    */
-  simplifyGraph(start: Vertex, end: Vertex, runs: number = 1): Graph {
+  simplifyGraph(start: number, end: number, runs: number = 1): Graph {
+    const startVertex = this.getVertex(start);
+    const endVertex = this.getVertex(end);
+
     for (let i = 0; i < runs; i++) {
-      this.simplificationRound(start, end);
+      this.simplificationRound(startVertex, endVertex);
     }
     return this;
   }
