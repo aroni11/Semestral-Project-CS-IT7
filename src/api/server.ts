@@ -5,6 +5,7 @@ import {MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
 import {findByIdHandler} from './handlers/findById';
 import {listHandler} from './handlers/list';
 import {nodesWithinHandler} from './handlers/nodesWithin';
+import {pathsHandler} from './handlers/paths';
 import {roadsHandler} from './handlers/roads';
 
 const app = express();
@@ -23,6 +24,8 @@ app.get('/api/:collection/:id', findByIdHandler);
 app.get('/api/roads', roadsHandler);
 
 app.post('/api/within', nodesWithinHandler);
+
+app.get('/api/paths', pathsHandler);
 
 function connect(mongoURI: string, options: ConnectionOptions): void {
   mongoose.set('useCreateIndex', true);
