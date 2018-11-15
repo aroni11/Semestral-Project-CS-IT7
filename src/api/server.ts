@@ -25,7 +25,7 @@ app.get('/api/roads', roadsHandler);
 
 app.post('/api/within', nodesWithinHandler);
 
-app.get('/api/paths', pathsHandler);
+app.post('/api/paths', pathsHandler);
 
 function connect(mongoURI: string, options: ConnectionOptions): void {
   mongoose.set('useCreateIndex', true);
