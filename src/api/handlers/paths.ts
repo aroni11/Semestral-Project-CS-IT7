@@ -25,7 +25,7 @@ export async function pathsHandler(req: Request, res: Response) {
 
       const graph = graphBuilder(nodes, ways);
 
-      const simplified = graph.simplifyGraph(start, end, 3);
+      const simplified = graph.simplifyGraph(start, end, 5);
 
       const testPathFinder = new DijkstraPathfinder();
       const path = testPathFinder.FindPath(start, end, simplified);
