@@ -1,4 +1,3 @@
-import {Error} from 'tslint/lib/error';
 import { INode } from '../../api/schema/node';
 import EdgeCost from './edgecost';
 
@@ -114,12 +113,16 @@ class Vertex {
    * @return object
    */
   getEdgeOtherNeighbor(notThisVertex: Vertex): {vertex: Vertex, costs: EdgeCost} {
+    if (this.neighbors.size < 1) {
+      throw new Error('Edge list empty!');
+    }
+
     for (const edge of this.neighbors) {
       if (edge.vertex !== notThisVertex) {
         return edge;
       }
     }
-    return null;
+    return this.neighbors.values().next().value;
   }
 
   /**
@@ -148,12 +151,13 @@ class Vertex {
         default:
           throw new Error('Unknown result value.');
       }
+
       // add bypassing edge in case the original edge does not lead back to observer
-      if (secondEdge !== null && secondEdge.vertex !== this) {
+      if (secondEdge.vertex !== this) {
         this.addNeighbor(EdgeCost.combine(edge.costs, secondEdge.costs), secondEdge.vertex);
       }
 
-      if (secondEdge !== null) { edge.vertex.removeNeighbor(secondEdge); }
+      edge.vertex.removeNeighbor(secondEdge);
       this.removeNeighbor(edge);
     }
   }
