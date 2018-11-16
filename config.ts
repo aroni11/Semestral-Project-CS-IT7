@@ -1,6 +1,21 @@
+/**
+ * URL to running MongoDB instance
+ */
 export const MONGO_URI = 'mongodb://localhost/test';
+
+/*
+ * Options to be passed when connecting to MongoDB
+ */
 export const MONGO_OPTIONS = { useNewUrlParser: true };
+
+/*
+ * ExpressJS server port
+ */
 export const SERVER_PORT = 8000;
+
+/*
+ * A list of supported road types
+ */
 export const GAR_ROADS = [
   'motorway',
   'trunk',
@@ -17,3 +32,8 @@ export const GAR_ROADS = [
   'tertiary_link',
   'living_street'
 ];
+
+/*
+ * Maximum distance for finding the nearest node in meters
+ */
+export const MAX_NEAREST_DISTANCE = 500;
