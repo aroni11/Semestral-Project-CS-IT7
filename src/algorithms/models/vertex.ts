@@ -1,4 +1,3 @@
-import {Error} from 'tslint/lib/error';
 import { INode } from '../../api/schema/node';
 import EdgeCost from './edgecost';
 
