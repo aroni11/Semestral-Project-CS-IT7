@@ -1,8 +1,8 @@
 import {Request, Response} from 'express';
-import {GAR_ROADS, MAX_NEAREST_DISTANCE} from '../../../config';
+import {GAR_ROADS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
 import DijkstraPathfinder from '../../algorithms/pathfinders/dijkstra';
-import {INode, Node} from '../schema/node';
+import {Node} from '../schema/node';
 import {IWay, Way} from '../schema/way';
 
 export async function pathsHandler(req: Request, res: Response) {
@@ -10,8 +10,8 @@ export async function pathsHandler(req: Request, res: Response) {
     return res.status(400).send('Start and/or end point(s) missing');
   }
   try {
-    const start = await findNearest(req.body.coordinates[0]);
-    const end = await findNearest(req.body.coordinates[1]);
+    const start = await Node.findNearest(req.body.coordinates[0]);
+    const end = await Node.findNearest(req.body.coordinates[1]);
 
     if (!(start && end)) {
       return res.status(422).send('Start and/or end point(s) are too far from the nearest existing node in the database');
@@ -56,18 +56,4 @@ export async function pathsHandler(req: Request, res: Response) {
   } catch (e) {
     res.status(503).send(e);
   }
-}
-
-async function findNearest(coordinates: [number, number]): Promise<INode> {
-  return await Node.findOne({
-    loc: {
-      $nearSphere: {
-        $geometry: {
-          type: 'Point',
-          coordinates
-        },
-        $maxDistance: MAX_NEAREST_DISTANCE
-      }
-    }
-  });
 }

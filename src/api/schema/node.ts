@@ -1,4 +1,5 @@
-import mongoose from 'mongoose';
+import mongoose, {Model} from 'mongoose';
+import {MAX_NEAREST_DISTANCE} from '../../../config';
 
 const Schema = mongoose.Schema;
 const String = Schema.Types.String;
@@ -12,6 +13,10 @@ export interface INode extends mongoose.Document {
     type: string,
     coordinates: [number, number]
   };
+}
+
+export interface INodeModel extends Model<INode> {
+  findNearest(coordinates: [number, number]): Promise<INode>;
 }
 
 const nodeSchema = new mongoose.Schema({
@@ -34,4 +39,18 @@ const nodeSchema = new mongoose.Schema({
   tags: {}
 });
 
-export const Node = mongoose.model<INode>('node', nodeSchema, 'nodes');
+nodeSchema.statics.findNearest = function(coordinates: [number, number]): Promise<INode> {
+  return this.findOne({
+    loc: {
+      $nearSphere: {
+        $geometry: {
+          type: 'Point',
+          coordinates
+        },
+        $maxDistance: MAX_NEAREST_DISTANCE
+      }
+    }
+  });
+};
+
+export const Node = mongoose.model<INode, INodeModel>('node', nodeSchema, 'nodes');
