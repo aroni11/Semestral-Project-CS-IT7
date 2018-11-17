@@ -5,6 +5,7 @@ import Vertex from '../models/vertex';
  * Implements Dijkstra's algorithm to find the shortest path between 2 vertices
  */
 export default class DijkstraPathfinder {
+
     /**
      * Stores best known distances from starting vertex to all the others
      */
