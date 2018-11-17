@@ -11,8 +11,8 @@ export async function pathsHandler(req: Request, res: Response) {
   }
 
   try {
-    const start = await Node.findNearest(req.body.coordinates[0]);
-    const end = await Node.findNearest(req.body.coordinates[1]);
+    const start = await Node.findNearestRoad(req.body.coordinates[0]);
+    const end = await Node.findNearestRoad(req.body.coordinates[1]);
 
     if (!(start && end)) {
       return res.status(422).send('Start and/or end point(s) are too far from the nearest existing node in the database');
@@ -50,20 +50,64 @@ export async function pathsHandler(req: Request, res: Response) {
 
       const pathCoordinates = path.map((vertexID) => [simplified.getVertex(vertexID).lng, simplified.getVertex(vertexID).lat]);
 
-      // TODO add start and end nodes to the output
       res.json({
-        type: 'Feature',
-        properties: {
-          name: 'Computed path',
-          line: 'red'
-        },
-        geometry: {
-          type: 'LineString',
-          coordinates: pathCoordinates
-        }
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: req.body.coordinates[0]
+            },
+            properties: {
+              name: 'Original start'
+            }
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: req.body.coordinates[1]
+            },
+            properties: {
+              name: 'Original end'
+            }
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: start.loc.coordinates
+            },
+            properties: {
+              name: 'Computed start'
+            }
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: end.loc.coordinates
+            },
+            properties: {
+              name: 'Computed end'
+            }
+          },
+          {
+            type: 'Feature',
+            properties: {
+              name: 'Computed path',
+              line: 'red'
+            },
+            geometry: {
+              type: 'LineString',
+              coordinates: pathCoordinates
+            }
+          }
+        ]
       });
     }
   } catch (e) {
-    res.status(503).send(e);
+    res.status(503).send(e.message);
   }
 }

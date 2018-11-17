@@ -1,5 +1,6 @@
 import mongoose, {Model} from 'mongoose';
-import {Coordinates, MAX_NEAREST_DISTANCE} from '../../../config';
+import {Coordinates, GAR_ROADS, MAX_NEAREST_DISTANCE} from '../../../config';
+import {Way} from './way';
 
 const Schema = mongoose.Schema;
 const String = Schema.Types.String;
@@ -17,6 +18,7 @@ export interface INode extends mongoose.Document {
 
 export interface INodeModel extends Model<INode> {
   findNearest(coordinates: Coordinates): Promise<INode>;
+  findNearestRoad(coordinates: Coordinates): Promise<INode>;
   findWithin(polygon: Coordinates[]): Promise<INode[]>;
 }
 
@@ -41,7 +43,7 @@ const nodeSchema = new mongoose.Schema({
 });
 
 nodeSchema.statics.findNearest = function(coordinates: Coordinates): Promise<INode> {
-  return this.findOne({
+  return this.find({
     loc: {
       $nearSphere: {
         $geometry: {
@@ -52,6 +54,24 @@ nodeSchema.statics.findNearest = function(coordinates: Coordinates): Promise<INo
       }
     }
   });
+};
+
+nodeSchema.statics.findNearestRoad = async function(coordinates: Coordinates): Promise<INode> {
+  const nearestNodes = await this.findNearest(coordinates);
+
+  // now find the nearest node that is a part of a road
+  for (const node of nearestNodes) {
+    const ways = await Way.find({ $and: [
+        { 'loc.nodes': node._id },
+        { 'tags.highway': {$in: GAR_ROADS} }
+      ]});
+
+    if (ways.length) {
+      return node;
+    }
+  }
+
+  throw new Error(`No road found in the diameter of ${MAX_NEAREST_DISTANCE} meters!`);
 };
 
 nodeSchema.statics.findWithin = function(polygon: Coordinates[]): Promise<INode[]> {
