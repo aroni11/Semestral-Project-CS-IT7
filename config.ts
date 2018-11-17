@@ -1,5 +1,5 @@
 /**
- * URL to running MongoDB instance
+ * URI to running MongoDB instance
  */
 export const MONGO_URI = 'mongodb://localhost/test';
 
