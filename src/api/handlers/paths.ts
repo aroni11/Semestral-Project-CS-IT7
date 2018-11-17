@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {GAR_ROADS} from '../../../config';
+import {Coordinates, GAR_ROADS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
 import DijkstraPathfinder from '../../algorithms/pathfinders/dijkstra';
 import {Node} from '../schema/node';
@@ -9,6 +9,7 @@ export async function pathsHandler(req: Request, res: Response) {
   if (!(req.body.coordinates)) {
     return res.status(400).send('Start and/or end point(s) missing');
   }
+
   try {
     const start = await Node.findNearest(req.body.coordinates[0]);
     const end = await Node.findNearest(req.body.coordinates[1]);
@@ -16,6 +17,14 @@ export async function pathsHandler(req: Request, res: Response) {
     if (!(start && end)) {
       return res.status(422).send('Start and/or end point(s) are too far from the nearest existing node in the database');
     }
+
+    const aa = req.body.coordinates[0];
+    const ab = [req.body.coordinates[0][0], req.body.coordinates[1][1]];
+    const bb = req.body.coordinates[1];
+    const ba = [req.body.coordinates[1][0], req.body.coordinates[0][1]];
+
+    const testPolygon = [aa, ab, bb, ba, aa] as Coordinates[];
+    // const nodes = await Node.findWithin(testPolygon);
 
     // TODO use within (polygon)
     // TODO find ways within that polygon
@@ -41,6 +50,7 @@ export async function pathsHandler(req: Request, res: Response) {
 
       const pathCoordinates = path.map((vertexID) => [simplified.getVertex(vertexID).lng, simplified.getVertex(vertexID).lat]);
 
+      // TODO add start and end nodes to the output
       res.json({
         type: 'Feature',
         properties: {

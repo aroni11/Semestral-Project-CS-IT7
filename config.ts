@@ -37,3 +37,8 @@ export const GAR_ROADS = [
  * Maximum distance for finding the nearest node in meters
  */
 export const MAX_NEAREST_DISTANCE = 500;
+
+/*
+ * Define the structure of coordinates we use throughout the application
+ */
+export type Coordinates = [number, number];

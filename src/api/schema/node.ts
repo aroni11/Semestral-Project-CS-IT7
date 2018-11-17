@@ -1,5 +1,5 @@
 import mongoose, {Model} from 'mongoose';
-import {MAX_NEAREST_DISTANCE} from '../../../config';
+import {Coordinates, MAX_NEAREST_DISTANCE} from '../../../config';
 
 const Schema = mongoose.Schema;
 const String = Schema.Types.String;
@@ -11,12 +11,13 @@ export interface INode extends mongoose.Document {
   _id: number;
   loc: {
     type: string,
-    coordinates: [number, number]
+    coordinates: Coordinates
   };
 }
 
 export interface INodeModel extends Model<INode> {
-  findNearest(coordinates: [number, number]): Promise<INode>;
+  findNearest(coordinates: Coordinates): Promise<INode>;
+  findWithin(polygon: Coordinates[]): Promise<INode[]>;
 }
 
 const nodeSchema = new mongoose.Schema({
@@ -39,7 +40,7 @@ const nodeSchema = new mongoose.Schema({
   tags: {}
 });
 
-nodeSchema.statics.findNearest = function(coordinates: [number, number]): Promise<INode> {
+nodeSchema.statics.findNearest = function(coordinates: Coordinates): Promise<INode> {
   return this.findOne({
     loc: {
       $nearSphere: {
@@ -48,6 +49,19 @@ nodeSchema.statics.findNearest = function(coordinates: [number, number]): Promis
           coordinates
         },
         $maxDistance: MAX_NEAREST_DISTANCE
+      }
+    }
+  });
+};
+
+nodeSchema.statics.findWithin = function(polygon: Coordinates[]): Promise<INode[]> {
+  return this.find({
+    loc: {
+      $geoWithin: {
+        $geometry: {
+          type: 'Polygon',
+          coordinates: [polygon]
+        }
       }
     }
   });
