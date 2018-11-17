@@ -1,5 +1,6 @@
 import EdgeCost from '../models/edgecost';
 import Graph from '../models/graph';
+import minHeap from './minHeapQueue';
 import Vertex from '../models/vertex';
 /**
  * Implements Dijkstra's algorithm to find the shortest path between 2 vertices

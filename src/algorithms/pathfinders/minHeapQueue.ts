@@ -1,52 +1,73 @@
 /**
-* Implements simple minheap priority queue for the Dijkstra algorithm.
-*/
-class minHeap {
-    class Entry {
+ * Implements simple minheap priority queue for the Dijkstra algorithm.
+ */
+interface IEntry {
         key: number;
         value: number;
-    }
-    data: Array<Entry>;
-    
+}
+class MinHeap {
+    data: IEntry[];
+
     constructor() {
-        this.data = new Array<Entry>();
+        this.data = new Array<IEntry>();
     }
     siftUp(index: number): void {
-        let parentindex = Math.floor(index/2) - 1;
-        if(array[parentindex].key > array[index].key) {
-            Swap(parentindex, index);
-            if(parentindex > 0)
-            {
-                siftUp(parentindex);
+        const parentindex = Math.floor(index / 2) - 1;
+        if (this.data[parentindex].key > this.data[index].key) {
+            this.swap(parentindex, index);
+            if (parentindex > 0) {
+                this.siftUp(parentindex);
             }
         }
-        
     }
     siftDown(index: number): void {
-        let leftChild = 2*index + 1;
-        let rightChild = leftchild + 1;
-        if(data[index].key > data[leftChild].key || data[index].key > data[rightChild].key) {
-            let minChild = (data[leftChild].key < data[rightChild].key)? leftchild : rightchild;
-            Swap(minChild, index);
-            if(minChild != data.length - 1) {
-                siftDown(minChild);
+        const leftChild = 2 * index + 1;
+        const rightChild = leftChild + 1;
+        if (this.data[index].key > this.data[leftChild].key || this.data[index].key > this.data[rightChild].key) {
+            const minChild = (this.data[leftChild].key < this.data[rightChild].key) ? leftChild : rightChild;
+            this.swap(minChild, index);
+            if (minChild !== this.data.length - 1) {
+                this.siftDown(minChild);
             }
         }
     }
     push(key: number, value: number): void {
-        let lastIndex = data.length;
-        data.push({key, value});
-        siftUp(lastIndex);
+        const lastIndex = this.data.length;
+        this.data.push({key, value});
+        this.siftUp(lastIndex);
     }
-    pop(): Entry {
-        swap(0, data.length - 1);
-        let returnEntry = data.pop();
-        siftDown(0);
-        
+
+    pop(): IEntry {
+        this.swap(0, this.data.length - 1);
+        const returnEntry = this.data.pop();
+        this.siftDown(0);
+        return returnEntry;
     }
-    swap(index1, index2): void {
-        let temp = array[index1];
-        array[index1] = array[index2];
-        array[index2] = temp;
+
+    swap(index1: number, index2: number): void {
+        const temp = this.data[index1];
+        this.data[index1] = this.data[index2];
+        this.data[index2] = temp;
+    }
+
+    toString(): string {
+        let string = '';
+        const depth = Math.floor(Math.log2(this.data.length));
+        let levelCount = 1;
+        let index = 0;
+        for (let i = 0; i <= depth; ++i) {
+            string += '#'.repeat(Math.pow(2, depth - i) - 1);
+            for (let j = 0; j < levelCount; ++j) {
+                string += this.data[index].key;
+                string += '#'.repeat(Math.pow(2, depth + 1 - i) - 1);
+                ++index;
+                if (index === this.data.length) {
+                    return string;
+                }
+            }
+            string += '\n';
+            levelCount *= 2;
+        }
+        return string;
     }
 }

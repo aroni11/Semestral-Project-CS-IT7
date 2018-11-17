@@ -48,7 +48,7 @@ export default class Graph {
         }
         return idSet;
     }
-  
+
     /*
     * Get all vertices in this graph
     */

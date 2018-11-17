@@ -20,7 +20,7 @@ class Vertex {
   /*
   * Number of edges directed TO this Vertex
   */
-  inDegree: number = 0;
+  inDegree = 0;
   /**
    * Array containing all neighbors of a Vertex, including associated edge
    */
