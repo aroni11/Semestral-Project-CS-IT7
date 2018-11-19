@@ -1,34 +1,37 @@
 /**
  * Implements simple minheap priority queue for the Dijkstra algorithm.
  */
-interface IEntry {
-        key: number;
-        value: number;
-}
-class MinHeap {
+export default class MinHeap {
     data: IEntry[];
 
     constructor() {
         this.data = new Array<IEntry>();
     }
+    isEmpty(): boolean {
+        return this.data.length === 0;
+    }
     siftUp(index: number): void {
-        const parentindex = Math.floor(index / 2) - 1;
+        if (index <= 0) {
+            return;
+        }
+        const parentindex = Math.floor((index - 1) / 2);
+        console.log(parentindex);
         if (this.data[parentindex].key > this.data[index].key) {
             this.swap(parentindex, index);
-            if (parentindex > 0) {
-                this.siftUp(parentindex);
-            }
+            this.siftUp(parentindex);
         }
     }
     siftDown(index: number): void {
-        const leftChild = 2 * index + 1;
-        const rightChild = leftChild + 1;
-        if (this.data[index].key > this.data[leftChild].key || this.data[index].key > this.data[rightChild].key) {
-            const minChild = (this.data[leftChild].key < this.data[rightChild].key) ? leftChild : rightChild;
-            this.swap(minChild, index);
-            if (minChild !== this.data.length - 1) {
-                this.siftDown(minChild);
-            }
+        let minChild = 2 * index + 1;
+        if (minChild >= this.data.length) {
+            return;
+        }
+        if (minChild + 1 < this.data.length) {
+          minChild = (this.data[minChild].key > this.data[minChild + 1].key) ? minChild + 1 : minChild;
+        }
+        if (this.data[index].key > this.data[minChild].key) {
+            this.swap(index, minChild);
+            this.siftDown(minChild);
         }
     }
     push(key: number, value: number): void {
@@ -56,10 +59,10 @@ class MinHeap {
         let levelCount = 1;
         let index = 0;
         for (let i = 0; i <= depth; ++i) {
-            string += '#'.repeat(Math.pow(2, depth - i) - 1);
+            string += ' '.repeat(Math.pow(2, depth - i) - 1);
             for (let j = 0; j < levelCount; ++j) {
                 string += this.data[index].key;
-                string += '#'.repeat(Math.pow(2, depth + 1 - i) - 1);
+                string += ' '.repeat(Math.pow(2, depth + 1 - i) - 1);
                 ++index;
                 if (index === this.data.length) {
                     return string;
@@ -70,4 +73,8 @@ class MinHeap {
         }
         return string;
     }
+}
+interface IEntry {
+        key: number;
+        value: number;
 }

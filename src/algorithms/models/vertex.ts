@@ -52,6 +52,16 @@ class Vertex {
       vertex
     });
   }
+  /**
+   * Get cost to neighbor (rather inefficient because neighbors is an array)
+   */
+  costTo(vertex: Vertex): EdgeCost {
+    for (const neighbor of this.neighbors) {
+      if (neighbor.vertex === vertex) {
+        return neighbor.costs;
+      }
+    }
+  }
 }
 
 export default Vertex;
