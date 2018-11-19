@@ -11,17 +11,18 @@ export interface IWay extends mongoose.Document {
   _id: number;
   loc: {
     type: string,
-    nodes: number[]
+    nodes: []
   };
+  tags: object;
 }
 
 const waySchema = new mongoose.Schema({
   _id: Number,
   osm_id: { type: Number, index: 'osm_id'},
-  type: {type: String, default: 'way'},
+  type: { type: String, default: 'way' },
   loc: {
     type: { type: String },
-    nodes: { type: Array, default: []},
+    nodes: { type: Array, default: [] },
     coordinates: []
   },
   osmTimeBucket: Object,
