@@ -1,5 +1,5 @@
 import distance from '@turf/distance';
-import {Feature, lineString, Polygon} from '@turf/helpers';
+import {feature, Feature, featureCollection, lineString, Polygon} from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import transformScale from '@turf/transform-scale';
 import {Request, Response} from 'express';
@@ -73,60 +73,47 @@ function computeScale(point1: Coordinates, point2: Coordinates, point3: Coordina
 }
 
 function generateResponse(start: Coordinates, end: Coordinates, computedStart: Coordinates, computedEnd: Coordinates, path: Coordinates[]) {
-  return {
-    type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: start
-        },
-        properties: {
-          name: 'Original start'
-        }
-      },
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: end
-        },
-        properties: {
-          name: 'Original end'
-        }
-      },
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: computedStart
-        },
-        properties: {
-          name: 'Computed start'
-        }
-      },
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: computedEnd
-        },
-        properties: {
-          name: 'Computed end'
-        }
-      },
-      {
-        type: 'Feature',
-        properties: {
-          name: 'Computed path',
-          line: 'red'
-        },
-        geometry: {
-          type: 'LineString',
-          coordinates: path
-        }
-      }
-    ]
-  };
+  const startFeature = feature({
+      type: 'Point',
+      coordinates: start
+    },
+    {
+      name: 'Original start'
+    });
+  const endFeature = feature({
+      type: 'Point',
+      coordinates: end
+    },
+    {
+      name: 'Original end'
+    });
+  const computedStartFeature = feature({
+      type: 'Point',
+      coordinates: computedStart
+    },
+    {
+      name: 'Computed start'
+    });
+  const computedEndFeature = feature({
+      type: 'Point',
+      coordinates: computedEnd
+    },
+    {
+      name: 'Computed end'
+    });
+  const pathFeature = feature({
+      type: 'LineString',
+      coordinates: path
+    },
+    {
+      name: 'Computed path'
+    });
+
+  return featureCollection([
+    startFeature,
+    endFeature,
+    computedStartFeature,
+    computedEndFeature,
+    pathFeature
+  ]);
 }
