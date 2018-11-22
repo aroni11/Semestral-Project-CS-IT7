@@ -25,10 +25,10 @@ export async function pathsHandler(req: Request, res: Response) {
       return res.status(422).send('Start and/or end point(s) are too far from the nearest existing node in the database');
     }
 
-    const boundaryRectangle = createBoundaryRectangle(start, end);
-    const within = await Node.findRoadsWithin(boundaryRectangle.geometry.coordinates[0] as Coordinates[]);
-    const nodes = within.nodes;
-    const ways = within.ways;
+    const boundaryRectangle = createBoundaryRectangle(startNode.loc.coordinates, endNode.loc.coordinates);
+    const roads = await Node.findRoadsWithin(boundaryRectangle.geometry.coordinates[0] as Coordinates[]);
+    const nodes = roads.nodes;
+    const ways = roads.ways;
 
     if (!(nodes && ways)) {
       return res.status(404).send('No nodes and/or ways found');
@@ -38,8 +38,8 @@ export async function pathsHandler(req: Request, res: Response) {
 
     const simplified = graph.simplifyGraph(startNode._id, endNode._id, 5);
 
-    const testPathFinder = new DijkstraPathfinder();
-    const path = testPathFinder.FindPath(startNode._id, endNode._id, simplified);
+    const pathFinder = new DijkstraPathfinder();
+    const path = pathFinder.FindPath(startNode._id, endNode._id, simplified);
 
     const pathCoordinates = path.map((vertexID) => [
       simplified.getVertex(vertexID).lng,
