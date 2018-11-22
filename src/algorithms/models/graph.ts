@@ -1,4 +1,3 @@
-import EdgeCost from './edgecost';
 import Vertex from './vertex';
 
 /**
@@ -14,7 +13,7 @@ export default class Graph {
    * Initializes new Map object for the Vertices displayed on the graph
    */
   constructor() {
-      this.verticesMap = new Map<number, Vertex>();
+    this.verticesMap = new Map<number, Vertex>();
   }
 
   /**
@@ -22,31 +21,31 @@ export default class Graph {
    * @param x : Vertex object
    */
   addVertex(...x: Vertex[]): void {
-      for (const v of x) {
-          this.verticesMap.set(v.id, v);
-      }
+    for (const v of x) {
+      this.verticesMap.set(v.id, v);
+    }
   }
 
   /**
    * Get function which returns a certain Vertex inside the Vertices dictionary
-   * @param id : The ID of the Vertex object to be returned
+   * @param id : number The ID of the Vertex object to be returned
    */
   getVertex(id: number): Vertex {
-      if (!this.verticesMap.has(id)) {
-          throw new Error(`Vertex ${id} not found!`);
-      }
-      return this.verticesMap.get(id);
+    if (!this.verticesMap.has(id)) {
+      throw new Error(`Vertex ${id} not found!`);
+    }
+    return this.verticesMap.get(id);
   }
 
   /**
    * Get function which returns a set of all vertex IDs contained within the graph
    */
   getVertexIDs(): Set<number> {
-      const idSet = new Set<number>();
-      for (const vertex of this.verticesMap.values()) {
-          idSet.add(vertex.id);
-      }
-      return idSet;
+    const idSet = new Set<number>();
+    for (const vertex of this.verticesMap.values()) {
+      idSet.add(vertex.id);
+    }
+    return idSet;
   }
 
   /**
