@@ -37,7 +37,9 @@ export default (nodes: INode[], ways: IWay[]): Graph => {
 
       cost.distance = getDistance(v1, v2);
 
-      if (!oneway) { v2.addNeighbor(cost, v1); }
+      if (!oneway) {
+        v2.addNeighbor(cost, v1);
+      }
       v1.addNeighbor(cost, v2);
     }
   }
