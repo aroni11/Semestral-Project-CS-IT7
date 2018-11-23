@@ -15,7 +15,6 @@ export default class MinHeap {
             return;
         }
         const parentindex = Math.floor((index - 1) / 2);
-        console.log(parentindex);
         if (this.data[parentindex].key > this.data[index].key) {
             this.swap(parentindex, index);
             this.siftUp(parentindex);

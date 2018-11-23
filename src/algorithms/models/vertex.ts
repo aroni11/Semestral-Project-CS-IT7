@@ -77,7 +77,6 @@ class Vertex {
       }
     }
   }
-}
 
   /**
    * Remove a neighbor of this vertex
