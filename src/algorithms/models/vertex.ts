@@ -68,7 +68,9 @@ class Vertex {
   }
 
   /**
-   * Get cost to neighbor (rather inefficient because neighbors is an array)
+   * Get cost to neighbor. Returns undefined if neighbor not found.
+   * @param vertex : neighbor
+   * @return EdgeCost
    */
   costTo(vertex: Vertex): EdgeCost {
     for (const neighbor of this.neighbors) {

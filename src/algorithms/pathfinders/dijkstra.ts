@@ -32,6 +32,8 @@ export default class DijkstraPathfinder {
      * @param startID : ID of starting vertex
      * @param endID : ID of destination vertex
      * @param myGraph : relevant graph
+     * @param costFunc : A function that calculates a scalar cost value based on an EdgeCost object
+     * @return Path
      */
     FindPath(startID: number, endID: number, myGraph: Graph, costFunc = (cost: EdgeCost) => cost.distance): Path {
         this.Initialize(myGraph);
@@ -82,6 +84,7 @@ export default class DijkstraPathfinder {
      * Produces an object representing the path from startID to endID based on the distance map
      * @param startID : ID of starting vertex
      * @param endID : ID of destination vertex
+     * @return Path
      */
     producePath(startID: number, endID: number, myGraph: Graph): Path {
         const path: Path = new Path();
