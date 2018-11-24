@@ -68,6 +68,19 @@ class Vertex {
   }
 
   /**
+   * Get cost to neighbor. Returns undefined if neighbor not found.
+   * @param vertex : neighbor
+   * @return EdgeCost
+   */
+  costTo(vertex: Vertex): EdgeCost {
+    for (const neighbor of this.neighbors) {
+      if (neighbor.vertex === vertex) {
+        return neighbor.costs;
+      }
+    }
+  }
+
+  /**
    * Remove a neighbor of this vertex
    * Outcoming edge of h=this vertex has to be passed as a parameter. The edge that matches the passed one will be
    * removed from the neighbors array, therefore neighbor is removed.

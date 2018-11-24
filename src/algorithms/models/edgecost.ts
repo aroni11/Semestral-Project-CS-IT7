@@ -5,6 +5,16 @@ import Vertex from './vertex';
  */
 class EdgeCost {
   /**
+   * Returns a zero cost
+   */
+  static get zero(): EdgeCost {
+    return {
+      distance: 0,
+      time: 0,
+      road_cost: 0
+    };
+  }
+  /**
    * Combine costs of multiple edges into one
    * @param ecs EdgeCost[] costs to be combined
    * @return EdgeCost Combined cost of all ecs

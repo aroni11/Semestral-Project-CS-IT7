@@ -1,12 +1,16 @@
 import EdgeCost from '../models/edgecost';
 import Graph from '../models/graph';
 import Vertex from '../models/vertex';
+import MinHeap from './minheap';
+import Path from './path';
+type CostFunc = (cost: EdgeCost) => number;
 /**
  * Implements Dijkstra's algorithm to find the shortest path between 2 vertices
  */
 export default class DijkstraPathfinder {
+
     /**
-     * Stores best known distances from starting vertex to all the others
+     * Stores all the pathing data found by algorithm
      */
     distances: Map<number, {
         distance: number;
@@ -14,98 +18,92 @@ export default class DijkstraPathfinder {
     }>;
 
     /**
-     * stores all unvisited vertices
+     * Queue for getting the next vertex
      */
-    unvisited: Set<number>;
+    vertexQueue: MinHeap;
+
+    /**
+     * stores all visited vertex ids
+     */
+    visited: Set<number>;
 
     /**
      * Returns an array of vertex IDs that represents the shortest path between 2 vertices
      * @param startID : ID of starting vertex
      * @param endID : ID of destination vertex
-     * @param mygraph : relevant graph
+     * @param myGraph : relevant graph
+     * @param costFunc : A function that calculates a scalar cost value based on an EdgeCost object
+     * @return Path
      */
-    FindPath(startID: number, endID: number, mygraph: Graph): number[] {
-        this.Initialize(mygraph);
+    FindPath(startID: number, endID: number, myGraph: Graph, costFunc = (cost: EdgeCost) => cost.distance): Path {
+        this.Initialize(myGraph);
         this.distances.set(startID, {distance: 0, sourceID: -9001});
-        this.unvisited.delete(startID);
-        let currentVertex = mygraph.getVertex(startID);
-        while (this.unvisited.size > 0) {
-            this.updateDistances(currentVertex);
-            currentVertex = this.getNextVertex(mygraph);
-            if (currentVertex.id === endID) {
-                break;
+        this.visited.delete(startID);
+        let currentVertex = myGraph.getVertex(startID);
+        try {
+            while (currentVertex.id !== endID) {
+                this.updateDistances(currentVertex, costFunc);
+                currentVertex = myGraph.getVertex(this.vertexQueue.pop().value);
+            }
+        } catch (error) {
+            if (currentVertex === undefined) {
+                throw new Error('Destination is unreachable from starting vertex or is not a part of the graph');
+            } else {
+                throw error;
             }
         }
-        return this.producePath(startID, endID);
+        return this.producePath(startID, endID, myGraph);
     }
 
     /**
      * Initializes data structures for finding paths in the given graph
-     * @param mygraph : relevant graph
+     * @param myGraph : relevant graph
      */
-    Initialize(mygraph: Graph): void {
-        this.unvisited = mygraph.getVertexIDs();
-        this.distances = new  Map<number, {
+    Initialize(myGraph: Graph): void {
+        this.visited = new Set<number>();
+        this.distances = new Map<number, {
             distance: number;
             sourceID: number;
         }>();
-        for (const vertexID of this.unvisited) {
-            this.distances.set(vertexID, {distance: global.Infinity, sourceID: -9001});
-        }
-    }
-
-    /**
-     * Finds the next best vertex of the graph to visit
-     * @param mygraph : relevant graph
-     */
-    getNextVertex(mygraph: Graph): Vertex {
-        // dumb bruteforce search
-        // TODO: make this something that doesn't suck
-        let bestVertexID: number;
-        let bestDistance: number = global.Infinity;
-        for (const vertexID of this.unvisited) {
-            const entry = this.distances.get(vertexID);
-            if (bestDistance >= entry.distance) {
-                bestDistance = entry.distance;
-                bestVertexID = vertexID;
-            }
-        }
-        return mygraph.getVertex(bestVertexID);
+        this.vertexQueue = new MinHeap();
     }
 
     /**
      * Updates the distance map if the distance from given vertex is better than the best known
      * @param currentVertex : relevant vertex
      */
-    updateDistances(currentVertex: Vertex): void {
-        this.unvisited.delete(currentVertex.id);
+    updateDistances(currentVertex: Vertex, costFunc: CostFunc): void {
+        this.visited.add(currentVertex.id);
         const currentDistance = this.distances.get(currentVertex.id).distance;
         for (const neighbor of currentVertex.neighbors) {
-            if (!this.unvisited.has(neighbor.vertex.id)) {
+            if (this.visited.has(neighbor.vertex.id)) {
                 continue;
             }
-            const newDistance = currentDistance + neighbor.costs.distance;
+            const newDistance = currentDistance + costFunc(neighbor.costs);
             const oldDistanceEntry = this.distances.get(neighbor.vertex.id);
             if (oldDistanceEntry === undefined || oldDistanceEntry.distance > newDistance) {
                 this.distances.set(neighbor.vertex.id, {distance: newDistance, sourceID: currentVertex.id});
+                this.vertexQueue.push( newDistance, neighbor.vertex.id);
             }
         }
     }
 
     /**
-     * Produces an array representing the path from startID to endID based on the distance map
+     * Produces an object representing the path from startID to endID based on the distance map
      * @param startID : ID of starting vertex
      * @param endID : ID of destination vertex
+     * @return Path
      */
-    producePath(startID: number, endID: number): number[] {
-        const path: number[] = [];
-        path.push(endID);
-        let currentID: number = endID;
-        while (currentID !== startID) {
-            currentID = this.distances.get(currentID).sourceID;
-            path.push(currentID);
+    producePath(startID: number, endID: number, myGraph: Graph): Path {
+        const path: Path = new Path();
+        let lastVertex: Vertex = myGraph.getVertex(endID);
+        let currentVertex = lastVertex;
+        path.addFront(lastVertex, null);
+        while (currentVertex.id !== startID) {
+            currentVertex = myGraph.getVertex(this.distances.get(currentVertex.id).sourceID);
+            path.addFront(currentVertex, currentVertex.costTo(lastVertex));
+            lastVertex = currentVertex;
         }
-        path.reverse();
         return path;
     }
 }
