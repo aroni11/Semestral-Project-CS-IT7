@@ -23,22 +23,19 @@ class EdgeCost {
     return res;
   }
 
-  /**
-   * Real distance between two vertices in meters
-   * Real time between two vertices in minutes
-   * Type of road between two vertices as a float value
-   */
+  // Real distance between two vertices in meters
   distance: number;
+  // Real time between two vertices in minutes
   time: number;
+  // Type of road between two vertices as a float value
   road_cost: number;
 
   /**
    * Constructor for the EdgeCost object which gives every edge between vertices a weight value for further calculation
    * @param v1: Vertex - vertex object which forms the edge with the second one
    * @param v2: Vertex - vertex which forms the edge with the first one
-   * @param road_type: string - type of road which connects the two vertices
    */
-  constructor(v1: Vertex = null, v2: Vertex = null, road_type: string = null) {
+  constructor(v1: Vertex = null, v2: Vertex = null) {
     if (v1 == null) {
       return;
     }
@@ -46,7 +43,14 @@ class EdgeCost {
     const lngSq = Math.pow((v1.lng - v2.lng), 2);
     const latSq = Math.pow((v1.lat - v2.lat), 2);
     this.distance = Math.sqrt(latSq + lngSq);
+    this.setRoadCost();
+  }
 
+  /**
+   * Method which determines the cost value depending on the road type between vertices
+   * @param road_type: string - Type of road
+   */
+  private setRoadCost(road_type: string = null) {
     let max_speed: number;
 
     switch (road_type) {
@@ -113,7 +117,6 @@ class EdgeCost {
     }
     this.time = this.distance / (max_speed / 60);
   }
-
 }
 
 export default EdgeCost;
