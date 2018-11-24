@@ -41,9 +41,9 @@ export async function pathsHandler(req: Request, res: Response) {
     const pathFinder = new DijkstraPathfinder();
     const path = pathFinder.FindPath(startNode._id, endNode._id, simplified);
 
-    const pathCoordinates = path.map((vertexID) => [
-      simplified.getVertex(vertexID).lng,
-      simplified.getVertex(vertexID).lat
+    const pathCoordinates = path.pathData.map((edge) => [
+      edge.vertex.lng,
+      edge.vertex.lat
     ]) as Coordinates[];
 
     return res.json(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathCoordinates));

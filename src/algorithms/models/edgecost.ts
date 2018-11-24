@@ -12,7 +12,7 @@ class EdgeCost {
       distance: 0,
       time: 0,
       road_cost: 0
-    };
+    } as EdgeCost;
   }
   /**
    * Combine costs of multiple edges into one
@@ -34,11 +34,11 @@ class EdgeCost {
   }
 
   // Real distance between two vertices in meters
-  distance: number;
+  distance = 0;
   // Real time between two vertices in minutes
-  time: number;
+  time = 0;
   // Type of road between two vertices as a float value
-  road_cost: number;
+  road_cost = 0;
 
   /**
    * Constructor for the EdgeCost object which gives every edge between vertices a weight value for further calculation
@@ -47,6 +47,7 @@ class EdgeCost {
    * @param road_type: string - type of road which connects the two vertices
    */
   constructor(v1: Vertex = null, v2: Vertex = null, road_type: string = null) {
+
     if (v1 == null) {
       return;
     }

@@ -33,7 +33,9 @@ export const GAR_ROADS = [
   'primary_link',
   'secondary_link',
   'tertiary_link',
-  'living_street'
+  'living_street',
+  'cycleway',
+  'footway'
 ];
 
 /*
