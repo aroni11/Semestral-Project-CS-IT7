@@ -113,12 +113,16 @@ class Vertex {
    * @return object
    */
   getEdgeOtherNeighbor(notThisVertex: Vertex): {vertex: Vertex, costs: EdgeCost} {
+    if (this.neighbors.size < 1) {
+      throw new Error('Edge list empty!');
+    }
+
     for (const edge of this.neighbors) {
       if (edge.vertex !== notThisVertex) {
         return edge;
       }
     }
-    return null;
+    return this.neighbors.values().next().value;
   }
 
   /**

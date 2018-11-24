@@ -7,7 +7,12 @@ export async function roadsHandler(req: Request, res: Response) {
   const includeAllProperties: boolean = req.query.includeAllProperties !== undefined;
 
   try {
-    const ways = await Way.find({'tags.highway': {$in: GAR_ROADS}}, includeAllProperties ? null : 'loc', { limit: 10000 }).lean();
+    const ways = await Way.find(
+      {'tags.highway': {$in: GAR_ROADS}},
+      includeAllProperties ? null : 'loc tags.oneway',
+      { limit: 10000 }
+    ).lean();
+
     if (!ways) {
       res.status(404).end();
     } else {

@@ -14,7 +14,8 @@
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "up-dependencies": "git add package.json && git commit -m \"Updated dependencies\""
+    "up-dependencies": "git add package.json && git commit -m \"Updated dependencies\"",
+    "import": "mongosm -v -db \"gar\" -f \"<insert file name>.osm\""
   },
   "contributors": [
     "Ahmet Pekbas <apekba18@student.aau.dk>",
@@ -26,6 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@turf/turf": "^5.1.6",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "mongoose": "^5.3.2"
@@ -33,14 +35,14 @@
   "devDependencies": {
     "@types/express": "^4.16.0",
     "@types/mongoose": "^5.2.19",
-    "async": "^2.6.1",
-    "date-utils": "^1.2.21",
     "rimraf": "^2.6.2",
-    "sax": "^1.2.4",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
   },
   "optionalDependencies": {
-    "mongosm": "^0.0.5"
+    "async": "^2.6.1",
+    "date-utils": "^1.2.21",
+    "mongosm": "^0.0.5",
+    "sax": "^1.2.4"
   }
 }
