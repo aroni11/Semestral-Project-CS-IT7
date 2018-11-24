@@ -39,10 +39,18 @@ export default class DijkstraPathfinder {
         this.Initialize(myGraph);
         this.distances.set(startID, {distance: 0, sourceID: -9001});
         this.visited.delete(startID);
-        let currentVertex = myGraph.getVertex(startID);
-        while (currentVertex.id !== endID) {
-            this.updateDistances(currentVertex, costFunc);
-            currentVertex = myGraph.getVertex(this.vertexQueue.pop().value);
+        try {
+            let currentVertex = myGraph.getVertex(startID);
+            while (currentVertex.id !== endID) {
+                this.updateDistances(currentVertex, costFunc);
+                currentVertex = myGraph.getVertex(this.vertexQueue.pop().value);
+            }
+        } catch (error) {
+            if (error.message === 'Vertex ID not found!') {
+                throw new Error('Destination is unreachable from starting vertex or is not a part of the graph');
+            } else {
+                throw error;
+            }
         }
         return this.producePath(startID, endID, myGraph);
     }
