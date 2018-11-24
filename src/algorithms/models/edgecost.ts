@@ -7,7 +7,9 @@ class EdgeCost {
    */
   static get zero(): EdgeCost {
     return {
-      distance: 0
+      distance: 0,
+      time: 0,
+      road_cost: 0
     };
   }
   /**
