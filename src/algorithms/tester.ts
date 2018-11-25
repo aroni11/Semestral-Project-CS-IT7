@@ -1,4 +1,4 @@
-import DijkstraPathfinder from './pathfinders/dijkstra';
+import {DijkstraPathfinder} from './pathfinders/dijkstra';
 import MinHeap from './pathfinders/minheap';
 import sampleGraph from './sample-graph-data';
 

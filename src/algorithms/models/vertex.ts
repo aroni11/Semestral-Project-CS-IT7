@@ -1,4 +1,5 @@
 import { INode } from '../../api/schema/node';
+import Edge from './edge';
 import EdgeCost from './edgecost';
 
 enum Simplification {
@@ -30,10 +31,7 @@ class Vertex {
   /**
    * Array containing all neighbors of a Vertex, including costs of path to them
    */
-  neighbors?: Set<{
-    vertex: Vertex;
-    costs: EdgeCost
-  }> = new Set();
+  neighbors: Set<Edge> = new Set();
 
   constructor(node: INode) {
     this.lng = node.loc.coordinates[0];
@@ -59,25 +57,29 @@ class Vertex {
   /**
    * Add a neighbor with edge
    */
-  addNeighbor(costs: EdgeCost, vertex: Vertex): void {
-    vertex.incrInDegree();
-    this.neighbors.add({
-      costs,
-      vertex
-    });
+  addNeighbor(edge: Edge): void {
+    // check if there exists the same edge already
+    for (const neighbor of this.neighbors) {
+      if (Edge.equal(neighbor, edge)) {
+        return;
+      }
+    }
+    edge.vertex.incrInDegree();
+    this.neighbors.add(edge);
   }
 
   /**
    * Get cost to neighbor. Returns undefined if neighbor not found.
-   * @param vertex : neighbor
+   * @param vertex: Vertex neighbor
    * @return EdgeCost
    */
   costTo(vertex: Vertex): EdgeCost {
     for (const neighbor of this.neighbors) {
-      if (neighbor.vertex === vertex) {
+      if (neighbor.vertex.id === vertex.id) {
         return neighbor.costs;
       }
     }
+    throw new Error(`Vertex ${this.id} has no neighbor vertex ${vertex.id}`);
   }
 
   /**
@@ -86,7 +88,7 @@ class Vertex {
    * removed from the neighbors array, therefore neighbor is removed.
    * @param edge Edge to a neighbor that will be removed
    */
-  removeNeighbor(edge: {vertex: Vertex, costs: EdgeCost}): void {
+  removeNeighbor(edge: Edge): void {
     this.neighbors.delete(edge);
     edge.vertex.inDegree -= 1;
   }
@@ -125,7 +127,7 @@ class Vertex {
    * @param notThisVertex : Vertex Edge to this vertex will not be returned
    * @return object
    */
-  getEdgeOtherNeighbor(notThisVertex: Vertex): {vertex: Vertex, costs: EdgeCost} {
+  getEdgeOtherNeighbor(notThisVertex: Vertex): Edge {
     if (this.neighbors.size < 1) {
       throw new Error('Edge list empty!');
     }
@@ -167,7 +169,7 @@ class Vertex {
 
       // add bypassing edge in case the original edge does not lead back to observer
       if (secondEdge.vertex !== this) {
-        this.addNeighbor(EdgeCost.combine(edge.costs, secondEdge.costs), secondEdge.vertex);
+        this.addNeighbor(new Edge(secondEdge.vertex, EdgeCost.combine(edge.costs, secondEdge.costs)));
       }
 
       edge.vertex.removeNeighbor(secondEdge);
