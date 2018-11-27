@@ -33,6 +33,23 @@ class EdgeCost {
     return res;
   }
 
+  /**
+   * Reduce all preferences to a single value. Also returns dominating cost keys.
+   *
+   * @param ecs EdgeCost object
+   * @param pi Preference weight vector
+   * @param func Reducer function can be supplied.
+   * @returns An object consisting of
+   */
+  static reduce(
+    ecs: any,
+    pi: any,
+    func: (costs: number[]) => number): number {
+    const keys = Object.keys(ecs);
+    const weightedCosts = keys.map((key) => ecs[key] * pi[key]);
+    return func(weightedCosts);
+  }
+
   // Real distance between two vertices in meters
   distance = 0;
   // Real time between two vertices in minutes
