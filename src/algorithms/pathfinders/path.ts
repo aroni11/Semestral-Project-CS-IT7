@@ -18,8 +18,10 @@ interface IPathElement {
  */
 export default class Path {
     pathData: IPathElement[];
+    totalCost: EdgeCost;
     constructor() {
         this.pathData = [];
+        this.totalCost = EdgeCost.zero;
     }
 
     /**
@@ -30,6 +32,7 @@ export default class Path {
     add(vertex: Vertex, edgecost: EdgeCost): void {
         this.pathData.push({vertex, edgecost: EdgeCost.zero});
         this.pathData[this.pathData.length - 1].edgecost = edgecost;
+        this.totalCost = EdgeCost.combine(this.totalCost, edgecost);
     }
 
     /**
@@ -39,15 +42,7 @@ export default class Path {
      */
     addFront(vertex: Vertex, edgecost: EdgeCost): void {
         this.pathData.unshift({vertex, edgecost});
-    }
-
-    /**
-     * Returns combined cost of the path
-     * @return EdgeCost
-     */
-    evaluate(): EdgeCost {
-        const costs = this.pathData.map((pathElement: IPathElement) => pathElement.edgecost);
-        return costs.reduce((total: EdgeCost, added: EdgeCost) => EdgeCost.combine(total, added));
+        this.totalCost = EdgeCost.combine(this.totalCost, edgecost);
     }
 
     toString() {
