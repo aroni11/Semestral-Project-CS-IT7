@@ -1,0 +1,73 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport="true"
+               [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+               [mode]="(isHandset$ | async) ? 'over' : 'side'"
+               [opened]="!(isHandset$ | async)">
+    <div class="sidenav-wrap">
+      <h2 class="sidenav-title">Start point</h2>
+      <div class="point-coords" *ngIf="start">[{{start.getLatLng().lat}}, {{start.getLatLng().lng}}]</div>
+      <div class="point-coords point-coords-warn" *ngIf="!start">Start point not set!</div>
+      <button class="marker-button" *ngIf="!start && pickedPoint !== 'start'" mat-stroked-button color="warn" (click)="togglePick('start')"><i class="material-icons">pin_drop</i></button>
+      <button class="marker-button" *ngIf="pickedPoint === 'start'" mat-flat-button color="warn" (click)="togglePick('start')"><i class="material-icons">pin_drop</i></button>
+      <button class="marker-button" *ngIf="start && pickedPoint !== 'start'" mat-stroked-button (click)="togglePick('start')"><i class="material-icons">pin_drop</i></button>
+      <button class="marker-button" *ngIf="start" mat-stroked-button color="warn" (click)="deletePoint('start')"><i class="material-icons">delete</i></button>
+    </div>
+    <div class="sidenav-wrap">
+      <h2 class="sidenav-title">End point</h2>
+      <div class="point-coords" *ngIf="end">[{{end.getLatLng().lat}}, {{end.getLatLng().lng}}]</div>
+      <div class="point-coords point-coords-warn" *ngIf="!end">Start point not set!</div>
+      <button class="marker-button" *ngIf="!end && pickedPoint !== 'end'" mat-stroked-button color="warn" (click)="togglePick('end')"><i class="material-icons">pin_drop</i></button>
+      <button class="marker-button" *ngIf="pickedPoint === 'end'" mat-flat-button color="warn" (click)="togglePick('end')"><i class="material-icons">pin_drop</i></button>
+      <button class="marker-button" *ngIf="end && pickedPoint !== 'end'" mat-stroked-button (click)="togglePick('end')"><i class="material-icons">pin_drop</i></button>
+      <button class="marker-button" *ngIf="end" mat-stroked-button color="warn" (click)="deletePoint('end')"><i class="material-icons">delete</i></button>
+    </div>
+    <div *ngIf="startComputed" class="sidenav-wrap">
+      <h3 class="sidenav-title">Computed start</h3>
+      <div class="point-coords">[{{startComputed.getLatLng().lat}}, {{startComputed.getLatLng().lng}}]</div>
+    </div>
+    <div *ngIf="endComputed" class="sidenav-wrap">
+      <h3 class="sidenav-title">Computed end</h3>
+      <div class="point-coords">[{{endComputed.getLatLng().lat}}, {{endComputed.getLatLng().lng}}]</div>
+    </div>
+    <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
+    <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
+      <h2 class="sidenav-title"><span matBadge="{{routes.length > 20 ? '20+' : routes.length}}">Routes</span></h2>
+      <div *ngFor="let routeProp of routesProperties">
+        <h3>{{routeProp.name}}</h3>
+        <p class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</p>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="credits">Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span>Generating (Good) Alternative Routes</span>
+    </mat-toolbar>
+    <div id="map"
+         leaflet
+         (leafletMapReady)="onMapReady($event)"
+         (leafletClick)="mapClick($event)"
+         [leafletOptions]="options"
+         [leafletLayersControl]="layersControl">
+    </div>
+    <mat-progress-bar
+      *ngIf="loading !== -1"
+      class="progress-bar"
+      color="warn"
+      mode="determinate"
+      [value]="loading"
+      [bufferValue]="0">
+    </mat-progress-bar>
+    <button class="mat-fab fab" *ngIf="start && end" (click)="generatePaths()"><img src="assets/destination.svg"></button>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+

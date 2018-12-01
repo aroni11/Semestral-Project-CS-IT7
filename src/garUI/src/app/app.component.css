@@ -1,0 +1,94 @@
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 200px;
+}
+
+.sidenav .mat-toolbar {
+  background: inherit;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+#map {
+  height: 92%;
+  padding: 0;
+}
+
+.sidenav-wrap {
+  text-align: center;
+}
+
+.sidenav-title {
+  font-weight: normal;
+  margin-top: 1em;
+  margin-bottom: 0;
+}
+
+.point-coords {
+  font-size: x-small;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  margin-bottom: 0.5em;
+}
+
+.point-coords-warn {
+  color: darkorange;
+}
+
+.marker-button {
+  margin: 0.2em;
+}
+
+mat-divider {
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+.credits {
+  font-size: 0.6em;
+  margin: 0.2em;
+}
+
+.credits a {
+  color: coral;
+}
+
+.fab {
+  position: fixed;
+  right: 1em;
+  bottom: 2.5em;
+  z-index: 2000;
+  box-shadow: 0 0 1em 0.5em rgba(0,0,0,0.6);
+  -moz-box-shadow: 0 0 1em 0.5em rgba(0,0,0,0.6);
+  -webkit-box-shadow: 0 0 1em 0.5em rgba(0,0,0,0.6);
+  -o-box-shadow: 0 0 1em 0.5em rgba(0,0,0,0.6);
+}
+
+.fab img {
+  width: 100%;
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  z-index: 2000;
+}
+
+.sidenav-route-info {
+  font-size: 80%;
+}
+
+.sidenav-route-info h3 {
+  margin-bottom: 0.3em;
+}
+
+.sidenav-route-costs {
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  margin: 0;
+}

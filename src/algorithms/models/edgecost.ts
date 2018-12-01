@@ -1,3 +1,4 @@
+import distance from '@turf/distance';
 import Vertex from './vertex';
 
 /**
@@ -59,9 +60,7 @@ class EdgeCost {
       return;
     }
 
-    const lngSq = Math.pow((v1.lng - v2.lng), 2);
-    const latSq = Math.pow((v1.lat - v2.lat), 2);
-    this.distance = Math.sqrt(latSq + lngSq);
+    this.distance = distance([v1.lng, v1.lat], [v2.lng, v2.lat]);
     this.setRoadCost(road_type);
   }
 
@@ -134,7 +133,7 @@ class EdgeCost {
         max_speed = 50;
         break;
     }
-    this.time = this.distance / (max_speed / 60);
+    this.time = this.distance / max_speed; // TODO milliseconds?
   }
 }
 
