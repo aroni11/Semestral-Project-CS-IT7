@@ -2,6 +2,7 @@ import { INode } from '../api/schema/node';
 import { IWay } from '../api/schema/way';
 import nodesToVertices from './helpers/nodes-to-vertices';
 import isOneWay from './helpers/one-way';
+import Edge from './models/edge';
 import EdgeCost from './models/edgecost';
 import Graph from './models/graph';
 
@@ -36,9 +37,9 @@ export default (nodes: INode[], ways: IWay[]): Graph => {
       const cost = new EdgeCost(v1, v2);
 
       if (!oneway) {
-        v2.addNeighbor(cost, v1);
+        v2.addNeighbor(new Edge(v1, cost));
       }
-      v1.addNeighbor(cost, v2);
+      v1.addNeighbor(new Edge(v2, cost));
     }
   }
 

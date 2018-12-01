@@ -3,9 +3,9 @@ import {feature, Feature, featureCollection, lineString, Polygon} from '@turf/he
 import lineToPolygon from '@turf/line-to-polygon';
 import transformScale from '@turf/transform-scale';
 import {Request, Response} from 'express';
-import {Coordinates, PATH_POLYGON_MARGIN} from '../../../config';
+import {Coordinates, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
-import DijkstraPathfinder from '../../algorithms/pathfinders/dijkstra';
+import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import {Node} from '../schema/node';
 
 export async function pathsHandler(req: Request, res: Response) {
@@ -36,17 +36,16 @@ export async function pathsHandler(req: Request, res: Response) {
 
     const graph = graphBuilder(nodes, ways);
 
-    const simplified = graph.simplifyGraph(startNode._id, endNode._id, 5);
+    const simplified = graph.simplifyGraph(startNode._id, endNode._id, SIMPLIFICATION_ROUNDS);
 
-    const pathFinder = new DijkstraPathfinder();
-    const path = pathFinder.FindPath(startNode._id, endNode._id, simplified);
+    const paths = simplified.topK(startNode._id, endNode._id, dijkstra, TOP_K_PATHS);
 
-    const pathCoordinates = path.pathData.map((edge) => [
+    const pathsCoordinates = paths.map((path) => path.pathData.map((edge) => [
       edge.vertex.lng,
       edge.vertex.lat
-    ]) as Coordinates[];
+    ]) as Coordinates[]);
 
-    return res.json(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathCoordinates));
+    return res.json(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsCoordinates));
   } catch (e) {
     console.error(e);
     return res.status(503).send(e.message);
@@ -72,7 +71,12 @@ function computeScale(point1: Coordinates, point2: Coordinates, point3: Coordina
   return (shorterEdge + PATH_POLYGON_MARGIN) / shorterEdge;
 }
 
-function generateResponse(start: Coordinates, end: Coordinates, computedStart: Coordinates, computedEnd: Coordinates, path: Coordinates[]) {
+function generateResponse(
+  start: Coordinates,
+  end: Coordinates,
+  computedStart: Coordinates,
+  computedEnd: Coordinates,
+  paths: Coordinates[][]) {
   const startFeature = feature({
       type: 'Point',
       coordinates: start
@@ -101,19 +105,19 @@ function generateResponse(start: Coordinates, end: Coordinates, computedStart: C
     {
       name: 'Computed end'
     });
-  const pathFeature = feature({
+  const pathFeatures = paths.map((path, index) => feature({
       type: 'LineString',
       coordinates: path
     },
     {
-      name: 'Computed path'
-    });
+      name: `Computed path #${index}`
+    }));
 
   return featureCollection([
     startFeature,
     endFeature,
     computedStartFeature,
     computedEndFeature,
-    pathFeature
+    ...pathFeatures
   ]);
 }
