@@ -10,13 +10,21 @@ interface ISkylineEntry {
 /**
  * Implements simple nested loop skyline filter.
  */
+
 export class SkylineFilter {
     data: ISkylineEntry[];
+
+    constructor(paths: Path[]) {
+      this.data = paths.map(this.pathToEntry);
+    }
+
     /**
      * Filters out dominated paths
      */
-    filter(paths: Path[]): Path[] {
-        this.data = paths.map(this.pathToEntry);
+    filter(): Path[] {
+        if (this.data.length < 1) {
+          throw new Error('Cannot filter empty list.');
+        }
         // This is probably going to be slow. A good idea to use a linked list here instead of setting flags.
         let dominator = this.data[0];
         while (dominator !== undefined) {
@@ -37,10 +45,8 @@ export class SkylineFilter {
         return false;
       }
       for (let key in dominator.totalCost) {
-        // @ts-ignore
-        let dominatorValue = dominator.totalCost[key];
-        // @ts-ignore
-        let dominateeValue = dominatee.totalCost[key];
+        const dominatorValue = (dominator.totalCost as any)[key];
+        const dominateeValue = (dominatee.totalCost as any)[key];
         if(dominatorValue > dominateeValue) {
           return false;
         }
