@@ -11,11 +11,11 @@ class EdgeCost {
     [index: string]: (param: EdgeCost) => number
   } = {
     // Real distance between two vertices in meters
-    distance: (ec: EdgeCost) => ec.costs.distance,
+    distance: (ec: EdgeCost) => ec.getCost('distance'),
     // Real time between two vertices in minutes
-    time: (ec: EdgeCost) => ec.costs.time,
+    time: (ec: EdgeCost) => ec.getCost('time'),
     // Type of road between two vertices as a float value
-    road_cost: (ec: EdgeCost) => ec.costs.distance * ec.costs.road_cost
+    road_cost: (ec: EdgeCost) => ec.getCost('distance') * ec.getCost('road_cost')
   };
 
   /**
@@ -55,10 +55,10 @@ class EdgeCost {
     const res = new EdgeCost();
     for (const ec of ecs) {
       for (const key of Object.keys(EdgeCost.costKeys)) {
-        res.costs[key] += EdgeCost.costKeys[key](ec);
+        res.setCost(key, res.getCost(key) + EdgeCost.costKeys[key](ec));
       }
     }
-    res.costs.road_cost /= res.costs.distance;
+    res.setCost('road_cost', res.getCost('road_cost') / res.getCost('distance'));
     return res;
   }
 
