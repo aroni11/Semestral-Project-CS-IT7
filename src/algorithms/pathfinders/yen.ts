@@ -91,5 +91,5 @@ export default function(graph: Graph,
     }
     paths.push(alternativePaths[0]);
   }
-  return paths;
+  return paths.concat(alternativePaths);
 }
