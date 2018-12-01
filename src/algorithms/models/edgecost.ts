@@ -34,6 +34,20 @@ class EdgeCost {
     return res;
   }
 
+  static dominator(lhs: EdgeCost, rhs: EdgeCost): EdgeCost {
+    const dominator: EdgeCost;
+    const dominatee: EdgeCost;
+    if(lhsSum < rhsSum)
+    {
+        dominator = lhs;
+        dominatee = rhs;
+    } else {
+        dominator = rhs;
+        dominatee = lhs;
+    }
+    return(dominator.dominates(dominatee))? dominator : undefined;
+  }
+  
   static equal(ec1: EdgeCost, ec2: EdgeCost): boolean {
     return ec1.distance  === ec2.distance
         && ec1.time      === ec2.time

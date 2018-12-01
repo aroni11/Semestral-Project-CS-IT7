@@ -3,7 +3,7 @@ import Path from '../pathfinders/path';
 
 interface ISkylineEntry {
     path: Path;
-    wasDominator: boolean;
+    dominated: boolean;
 }
 /**
  * Implements simple nested loop skyline filter.
@@ -20,20 +20,32 @@ export class SkylineFilter {
      * Filters out dominated paths
      */
     filter(): Path[] {
-        if (this.data.length < 1) {
-          throw new Error('Cannot filter empty list.');
-        }
         // This is probably going to be slow. A good idea to use a linked list here instead of setting flags.
-        let dominator = this.data[0];
-        while (dominator !== undefined) {
-            dominator.wasDominator = true;
-            this.data = this.data.filter((dominatee: ISkylineEntry) => !(dominator.path.dominates(dominatee.path)));
-            dominator = this.data.find((entry: ISkylineEntry) => !entry.wasDominator);
-        }
+		let current = data[0];
+		while (current != undefined) {
+            const currentCost = current.path.evaluate();
+			for (entry of data) {
+				if (entry.dominated) {
+					continue;
+				}
+				dominator = EdgeCost.dominator(currentCost, entry.path.evaluate);
+				if(dominator === undefined) {
+					continue;
+				}
+				if(dominator === currentCost) {
+					entry.dominated = true;
+					continue;
+				}
+				current.dominated = true;
+				break;
+			}
+			current = this.data.find((entry: ISkylineEntry) => !entry.dominated);
+			
+		}
         return this.data.map((entry: ISkylineEntry) => entry.path);
     }
 
     private pathToEntry(path: Path): ISkylineEntry {
-        return {path, wasDominator: false};
+        return {path, dominated: false};
     }
 }
