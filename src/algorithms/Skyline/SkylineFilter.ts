@@ -1,7 +1,9 @@
+import EdgeCost from '../models/edgecost';
 import Path from '../pathfinders/path';
 
 interface ISkylineEntry {
     path: Path;
+    totalCost: EdgeCost;
     costSum: number;
     wasDominator: boolean;
 }
@@ -34,8 +36,8 @@ export class SkylineFilter {
         if (dominator.costSum >= dominatee.costSum) {
             return false;
         }
-        for (const key in Object.keys(dominator.path.totalCost)) {
-            if ((dominator.path.totalCost as any)[key] > (dominatee.path.totalCost as any)[key]) {
+        for (const key in Object.keys(dominator.totalCost)) {
+            if ((dominator.totalCost as any)[key] > (dominatee.totalCost as any)[key]) {
                 return false;
             }
         }
@@ -43,10 +45,11 @@ export class SkylineFilter {
     }
 
     private pathToEntry(path: Path): ISkylineEntry {
+        const totalCost = path.evaluate();
         let costSum = 0;
-        for (const key of Object.keys(path.totalCost)) {
-            costSum += (path.totalCost as any)[key];
+        for (const key of Object.keys(totalCost)) {
+            costSum += (totalCost as any)[key];
         }
-        return {path, costSum, wasDominator: false};
+        return {path, totalCost, costSum, wasDominator: false};
     }
 }
