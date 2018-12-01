@@ -81,8 +81,8 @@ export default class Graph {
     let out = 'digraph {';
     while (!next.done) {
       for (const edge of next.value.neighbors) {
-        const costs = [...next.value.neighbors].find((ec) => ec.vertex === edge.vertex);
-        out += `${next.value.id} -> ${edge.vertex.id} [label = "${costs.costs.distance}"]\n`;
+        const costs = [...next.value.neighbors].find((ec) => ec.vertex === edge.vertex).costs;
+        out += `${next.value.id} -> ${edge.vertex.id} [label = "${costs.getCost('distance')}"]\n`;
       }
       next = iterator.next();
     }
