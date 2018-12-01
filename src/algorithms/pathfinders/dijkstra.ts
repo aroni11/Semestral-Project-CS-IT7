@@ -108,7 +108,7 @@ export class DijkstraPathfinder {
   }
 }
 
-export function dijkstra(start: number, end: number, graph: Graph): Path {
+export function dijkstra(start: number, end: number, graph: Graph, costFunction: CostFunction = undefined): Path {
   const dijkstraPathFinder = new DijkstraPathfinder();
-  return dijkstraPathFinder.FindPath(start, end, graph);
+  return dijkstraPathFinder.FindPath(start, end, graph, costFunction);
 }

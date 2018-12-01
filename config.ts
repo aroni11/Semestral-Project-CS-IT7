@@ -77,7 +77,7 @@ export interface IRoads {
 /*
  * Define how a function for finding a path should look like
  */
-export type PathFinder = (s: number, e: number, g: Graph) => Path;
+export type PathFinder = (s: number, e: number, g: Graph, cf: CostFunction) => Path;
 
 /*
  * Define how a cost function should look like

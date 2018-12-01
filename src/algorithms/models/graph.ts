@@ -1,4 +1,4 @@
-import {PathFinder} from '../../../config';
+import {CostFunction, PathFinder} from '../../../config';
 import Path from '../pathfinders/path';
 import yen from '../pathfinders/yen';
 import Edge from './edge';
@@ -67,8 +67,8 @@ export default class Graph {
     this.verticesMap.delete(id);
   }
 
-  topK(start: number, end: number, pathFinder: PathFinder, k: number): Path[] {
-    return yen(this, start, end, pathFinder, k);
+  topK(start: number, end: number, pathFinder: PathFinder, costsFunction: CostFunction, k: number): Path[] {
+    return yen(this, start, end, pathFinder, costsFunction, k);
   }
 
   /**
