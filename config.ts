@@ -1,3 +1,6 @@
+import EdgeCost from './src/algorithms/models/edgecost';
+import Graph from './src/algorithms/models/graph';
+import Path from './src/algorithms/pathfinders/path';
 import {INode} from './src/api/schema/node';
 import {IWay} from './src/api/schema/way';
 
@@ -39,6 +42,16 @@ export const GAR_ROADS = [
 ];
 
 /*
+ * Default number of simplifications of a graph
+ */
+export const SIMPLIFICATION_ROUNDS = 5;
+
+/*
+ * Default number of generated alternative paths
+ */
+export const TOP_K_PATHS = 5;
+
+/*
  * Maximum distance for finding the nearest node in meters
  */
 export const MAX_NEAREST_DISTANCE = 500;
@@ -60,3 +73,13 @@ export interface IRoads {
   nodes: INode[];
   ways: IWay[];
 }
+
+/*
+ * Define how a function for finding a path should look like
+ */
+export type PathFinder = (s: number, e: number, g: Graph, cf: CostFunction) => Path;
+
+/*
+ * Define how a cost function should look like
+ */
+export type CostFunction = (cost: EdgeCost) => number;

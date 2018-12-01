@@ -1,3 +1,7 @@
+import {CostFunction, PathFinder} from '../../../config';
+import Path from '../pathfinders/path';
+import yen from '../pathfinders/yen';
+import Edge from './edge';
 import Vertex from './vertex';
 
 /**
@@ -37,23 +41,34 @@ export default class Graph {
     return this.verticesMap.get(id);
   }
 
-  /**
-   * Get function which returns a set of all vertex IDs contained within the graph
-   */
-  getVertexIDs(): Set<number> {
-    const idSet = new Set<number>();
-    for (const vertex of this.verticesMap.values()) {
-      idSet.add(vertex.id);
+  removeEdge(from: number, to: number): Edge {
+    const fromVertex = this.getVertex(from);
+    for (const neighbor of fromVertex.neighbors) {
+      if (neighbor.vertex.id === to) {
+        fromVertex.neighbors.delete(neighbor);
+        return neighbor;
+      }
     }
-    return idSet;
   }
 
-  /**
-   * Get all vertices in this graph
-   * @return Iterator which can be used to walk through all the vertices in this graph.
-   */
-  get vertices(): Iterator<Vertex> {
-    return this.verticesMap.values();
+  removeVertex(id: number, deletedEdges?: Array<[number, Edge]>): void {
+    // first remove all edges to this vertex
+    for (const vertex of this.verticesMap.values()) {
+      for (const neighbor of vertex.neighbors) {
+        if (neighbor.vertex.id === id) {
+          vertex.removeNeighbor(neighbor);
+          if (deletedEdges) {
+            deletedEdges.push([vertex.id, neighbor]);
+          }
+        }
+      }
+    }
+
+    this.verticesMap.delete(id);
+  }
+
+  topK(start: number, end: number, pathFinder: PathFinder, costsFunction: CostFunction, k: number): Path[] {
+    return yen(this, start, end, pathFinder, costsFunction, k);
   }
 
   /**
@@ -61,12 +76,13 @@ export default class Graph {
    * @return String representing the edges in the graph
    */
   graphVizString(): string {
-    const iterator = this.vertices;
+    const iterator = this.verticesMap.values();
     let next = iterator.next();
     let out = 'digraph {';
     while (!next.done) {
       for (const edge of next.value.neighbors) {
-        out += next.value.id + ' -> ' + edge.vertex.id + '\n';
+        const costs = [...next.value.neighbors].find((ec) => ec.vertex === edge.vertex);
+        out += `${next.value.id} -> ${edge.vertex.id} [label = "${costs.costs.distance}"]\n`;
       }
       next = iterator.next();
     }
@@ -98,7 +114,7 @@ export default class Graph {
    * @return Graph Simplified graph object
    */
   private simplificationRound(start: Vertex, end: Vertex): void {
-    const it = this.vertices;
+    const it = this.verticesMap.values();
     let next = it.next();
     while (!next.done) {
       next.value.bypassNeighbors(start, end);

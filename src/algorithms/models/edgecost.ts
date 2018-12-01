@@ -19,13 +19,29 @@ class EdgeCost {
   };
 
   /**
+   * Compare to edges.
+   *
+   * @param ec1
+   * @param ec2
+   */
+  static equal(ec1: EdgeCost, ec2: EdgeCost): boolean {
+    let check = true;
+    Object.keys(EdgeCost.costKeys).forEach((key) => {
+      if (ec1.getCost(key) !== ec2.getCost(key)) {
+        check = false;
+      }
+    });
+    return check;
+  }
+
+  /**
    * Returns a zero cost
    */
   static get zero(): EdgeCost {
     const zeroObj = new EdgeCost();
     const costKeys = Object.keys(EdgeCost.costKeys);
     for (const key of costKeys) {
-      zeroObj.costs[key] = 0;
+      zeroObj.setCost(key, 0);
     }
     return zeroObj as EdgeCost;
   }
