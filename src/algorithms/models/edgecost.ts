@@ -8,11 +8,12 @@ class EdgeCost {
    * Returns a zero cost
    */
   static get zero(): EdgeCost {
-    return {
-      distance: 0,
-      time: 0,
-      road_cost: 0
-    } as EdgeCost;
+    const newEdgeCost = new EdgeCost();
+    newEdgeCost.distance = 0;
+    newEdgeCost.time = 0;
+    newEdgeCost.road_cost = 0;
+
+    return newEdgeCost;
   }
   /**
    * Combine costs of multiple edges into one
@@ -31,6 +32,12 @@ class EdgeCost {
     res.road_cost /= res.distance;
 
     return res;
+  }
+
+  static equal(ec1: EdgeCost, ec2: EdgeCost): boolean {
+    return ec1.distance  === ec2.distance
+        && ec1.time      === ec2.time
+        && ec1.road_cost === ec2.road_cost;
   }
 
   // Real distance between two vertices in meters
