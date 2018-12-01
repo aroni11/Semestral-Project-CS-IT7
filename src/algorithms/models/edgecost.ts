@@ -136,6 +136,33 @@ class EdgeCost {
     }
     this.time = this.distance / (max_speed / 60);
   }
+
+  getSum() {
+    let costSum = 0;
+    for (const key of Object.keys(this)) {
+      costSum += (this as any)[key];
+    }
+    return costSum;
+  }
+
+  /**
+   * Check if a path dominates the other
+   * @param dominator : the path checked to dominate
+   * @param dominatee : the path checked to be dominated
+   */
+  dominates(dominatee: EdgeCost): boolean {
+    if (this.getSum() >= dominatee.getSum()) {
+      return false;
+    }
+    for (let key in this) {
+      const dominatorValue = (this as any)[key];
+      const dominateeValue = (dominatee as any)[key];
+      if(dominatorValue > dominateeValue) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 export default EdgeCost;
