@@ -33,8 +33,9 @@ export default (nodes: INode[], ways: IWay[]): Graph => {
     for (let i = 0; i < nodeIds.length - 1; i++) {
       const v1 = graph.getVertex(nodeIds[i]);
       const v2 = graph.getVertex(nodeIds[i + 1]);
+      const tags: any = way.tags;
 
-      const cost = new EdgeCost(v1, v2);
+      const cost = new EdgeCost(v1, v2, tags['highway']);
 
       if (!oneway) {
         v2.addNeighbor(new Edge(v1, cost));
