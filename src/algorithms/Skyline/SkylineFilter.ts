@@ -33,15 +33,19 @@ export class SkylineFilter {
      * @param dominatee : the path checked to be dominated
      */
     private dominates(dominator: ISkylineEntry, dominatee: ISkylineEntry): boolean {
-        if (dominator.costSum >= dominatee.costSum) {
-            return false;
+      if (dominator.costSum >= dominatee.costSum) {
+        return false;
+      }
+      for (let key in dominator.totalCost) {
+        // @ts-ignore
+        let dominatorValue = dominator.totalCost[key];
+        // @ts-ignore
+        let dominateeValue = dominatee.totalCost[key];
+        if(dominatorValue > dominateeValue) {
+          return false;
         }
-        for (const key in Object.keys(dominator.totalCost)) {
-            if ((dominator.totalCost as any)[key] > (dominatee.totalCost as any)[key]) {
-                return false;
-            }
-        }
-        return true;
+      }
+      return true;
     }
 
     private pathToEntry(path: Path): ISkylineEntry {
