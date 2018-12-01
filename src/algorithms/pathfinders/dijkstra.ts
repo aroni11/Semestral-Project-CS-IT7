@@ -35,7 +35,7 @@ export default class DijkstraPathfinder {
      * @param costFunc : A function that calculates a scalar cost value based on an EdgeCost object
      * @return Path
      */
-    FindPath(startID: number, endID: number, myGraph: Graph, costFunc = (cost: EdgeCost) => cost.distance): Path {
+    FindPath(startID: number, endID: number, myGraph: Graph, costFunc = (cost: EdgeCost) => cost.getCost('distance')): Path {
         this.Initialize(myGraph);
         this.distances.set(startID, {distance: 0, sourceID: -9001});
         this.visited.delete(startID);
