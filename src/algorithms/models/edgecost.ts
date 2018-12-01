@@ -39,10 +39,9 @@ class EdgeCost {
    */
   static get zero(): EdgeCost {
     const zeroObj = new EdgeCost();
-    const costKeys = Object.keys(EdgeCost.costKeys);
-    for (const key of costKeys) {
-      zeroObj.setCost(key, 0);
-    }
+    zeroObj.setCost('distance', 0);
+    zeroObj.setCost('time', 0);
+    zeroObj.setCost('road_cost', 7);
     return zeroObj as EdgeCost;
   }
 
@@ -52,10 +51,11 @@ class EdgeCost {
    * @return EdgeCost Combined cost of all ecs
    */
   static combine(...ecs: EdgeCost[]): EdgeCost {
-    const res = new EdgeCost();
+    const { costKeys, zero } = EdgeCost;
+    const res: EdgeCost = zero;
     for (const ec of ecs) {
-      for (const key of Object.keys(EdgeCost.costKeys)) {
-        res.setCost(key, res.getCost(key) + EdgeCost.costKeys[key](ec));
+      for (const key of Object.keys(costKeys)) {
+        res.setCost(key, res.getCost(key) + costKeys[key](ec));
       }
     }
     res.setCost('road_cost', res.getCost('road_cost') / res.getCost('distance'));
