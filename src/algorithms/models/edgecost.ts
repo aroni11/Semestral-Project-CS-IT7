@@ -23,33 +23,31 @@ class EdgeCost {
    */
   static get zero(): EdgeCost {
     const zeroObj = new EdgeCost();
-    const costKeys = Object.keys(this.costKeys);
+    const costKeys = Object.keys(EdgeCost.costKeys);
     for (const key of costKeys) {
       zeroObj.costs[key] = 0;
     }
     return zeroObj as EdgeCost;
   }
+
   /**
    * Combine costs of multiple edges into one
    * @param ecs EdgeCost[] costs to be combined
    * @return EdgeCost Combined cost of all ecs
    */
-
   static combine(...ecs: EdgeCost[]): EdgeCost {
     const res = new EdgeCost();
     for (const ec of ecs) {
-      for (const key of Object.keys(this.costKeys)) {
-        res.costs[key] += this.costKeys[key](ec);
+      for (const key of Object.keys(EdgeCost.costKeys)) {
+        res.costs[key] += EdgeCost.costKeys[key](ec);
       }
     }
-
     res.costs.road_cost /= res.costs.distance;
-
     return res;
   }
 
   /**
-   * Reduce all preferences to a single value. Also returns dominating cost keys.
+   * Reduce all costs to a single value. Can also handle preferences
    *
    * @param ecs EdgeCost object
    * @param pi Preference weight object
@@ -59,23 +57,34 @@ class EdgeCost {
   static reduceWithPreferences(
     ecs: EdgeCost | EdgeCost[],
     pi: { [index: string]: number },
-    func: (costs: number[]) => number): number {
+    func: (costs: EdgeCost) => number): number {
+    const { costKeys, combine } = EdgeCost;
     let ec: EdgeCost;
     if ((ecs as EdgeCost[]).length) {
       const ecsArr = ecs as EdgeCost[];
-      ec = EdgeCost.combine(...ecsArr);
+      ec = combine(...ecsArr);
     } else {
       ec = ecs as EdgeCost;
     }
-    const weightedCosts = Object.keys(ecs).map((key) => ec.costs[key] * pi[key]);
-    return func(weightedCosts);
+    Object.keys(costKeys).forEach((key) => {
+      ec.setCost(key, ec.getCost(key) * pi[key]);
+    });
+    return func(ec);
   }
 
+  /**
+   * Reduce all costs to a single value. Preferences are defaulted to 1
+   *
+   * @param ecs EdgeCost object
+   * @param func Reducer function can be supplied.
+   * @returns An object consisting of
+   */
   static reduce(
     ecs: EdgeCost | EdgeCost[],
-    func: (costs: number[]) => number): number {
+    func: (costs: EdgeCost) => number): number {
+    const { costKeys } = EdgeCost;
     const pi: { [index: string]: number } = {};
-    Object.keys(this.costKeys).forEach((key) => pi[key] = 1);
+    Object.keys(costKeys).forEach((key) => pi[key] = 1);
     return this.reduceWithPreferences(ecs, pi, func);
   }
 
