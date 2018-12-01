@@ -40,14 +40,14 @@ const ec6 = new EdgeCost();
 const ec7 = new EdgeCost();
 const ec8 = new EdgeCost();
 
-ec1.distance = 1;
-ec2.distance = 2;
-ec3.distance = 3;
-ec4.distance = 4;
-ec5.distance = 5;
-ec6.distance = 6;
-ec7.distance = 7;
-ec8.distance = 8;
+ec1.setCost('distance', 1);
+ec2.setCost('distance', 2);
+ec3.setCost('distance', 3);
+ec4.setCost('distance', 4);
+ec5.setCost('distance', 5);
+ec6.setCost('distance', 6);
+ec7.setCost('distance', 7);
+ec8.setCost('distance', 8);
 
 /*
 Vertex 1
