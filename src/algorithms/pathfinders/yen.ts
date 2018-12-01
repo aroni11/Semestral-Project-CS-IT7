@@ -4,7 +4,12 @@ import Graph from '../models/graph';
 import Vertex from '../models/vertex';
 import Path from './path';
 
-export default function(graph: Graph, start: number, end: number, pathFinder: PathFinder, costsFunction: CostFunction, topK: number): Path[] {
+export default function(graph: Graph,
+                        start: number,
+                        end: number,
+                        pathFinder: PathFinder,
+                        costsFunction: CostFunction,
+                        topK: number): Path[] {
   const paths: Path[] = [pathFinder(start, end, graph, costsFunction)];
   const alternativePaths: Path[] = [];
   let deletedEdges: Array<[number, Edge]> = [];
