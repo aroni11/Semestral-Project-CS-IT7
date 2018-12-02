@@ -35,19 +35,18 @@ class EdgeCost {
   }
 
   static dominator(lhs: EdgeCost, rhs: EdgeCost): EdgeCost {
-    const dominator: EdgeCost;
-    const dominatee: EdgeCost;
-    if(lhsSum < rhsSum)
-    {
+    let dominator: EdgeCost;
+    let dominatee: EdgeCost;
+    if (lhs.getSum() < rhs.getSum()) {
         dominator = lhs;
         dominatee = rhs;
     } else {
         dominator = rhs;
         dominatee = lhs;
     }
-    return(dominator.dominates(dominatee))? dominator : undefined;
+    return (dominator.dominates(dominatee)) ? dominator : undefined;
   }
-  
+
   static equal(ec1: EdgeCost, ec2: EdgeCost): boolean {
     return ec1.distance  === ec2.distance
         && ec1.time      === ec2.time
@@ -79,6 +78,35 @@ class EdgeCost {
     this.setRoadCost(road_type);
   }
 
+  getSum() {
+    let costSum = 0;
+    for (const key of Object.keys(this)) {
+      costSum += (this as any)[key];
+    }
+    return costSum;
+  }
+
+  /**
+   * Check if a path dominates the other
+   * @param dominator : the path checked to dominate
+   * @param dominatee : the path checked to be dominated
+   */
+  dominates(dominatee: EdgeCost): boolean {
+    if (this.getSum() >= dominatee.getSum()) {
+      return false;
+    }
+    for (const key in this) {
+      if (this.hasOwnProperty(key)) {
+        const dominatorValue = (this as any)[key];
+        const dominateeValue = (dominatee as any)[key];
+        if (dominatorValue > dominateeValue) {
+          return false;
+        }
+      }
+
+    }
+    return true;
+  }
   /**
    * Method which determines the cost value depending on the road type between vertices
    * @param road_type: string - Type of road
@@ -151,32 +179,6 @@ class EdgeCost {
     this.time = this.distance / (max_speed / 60);
   }
 
-  getSum() {
-    let costSum = 0;
-    for (const key of Object.keys(this)) {
-      costSum += (this as any)[key];
-    }
-    return costSum;
-  }
-
-  /**
-   * Check if a path dominates the other
-   * @param dominator : the path checked to dominate
-   * @param dominatee : the path checked to be dominated
-   */
-  dominates(dominatee: EdgeCost): boolean {
-    if (this.getSum() >= dominatee.getSum()) {
-      return false;
-    }
-    for (let key in this) {
-      const dominatorValue = (this as any)[key];
-      const dominateeValue = (dominatee as any)[key];
-      if(dominatorValue > dominateeValue) {
-        return false;
-      }
-    }
-    return true;
-  }
 }
 
 export default EdgeCost;

@@ -21,28 +21,27 @@ export class SkylineFilter {
      */
     filter(): Path[] {
         // This is probably going to be slow. A good idea to use a linked list here instead of setting flags.
-		let current = data[0];
-		while (current != undefined) {
+        let current = this.data[0];
+        while (current !== undefined) {
             const currentCost = current.path.evaluate();
-			for (entry of data) {
-				if (entry.dominated) {
-					continue;
-				}
-				dominator = EdgeCost.dominator(currentCost, entry.path.evaluate);
-				if(dominator === undefined) {
-					continue;
-				}
-				if(dominator === currentCost) {
-					entry.dominated = true;
-					continue;
-				}
-				current.dominated = true;
-				break;
-			}
-			current = this.data.find((entry: ISkylineEntry) => !entry.dominated);
-			
-		}
-        return this.data.map((entry: ISkylineEntry) => entry.path);
+            for (const entry of this.data) {
+                if (entry.dominated) {
+                    continue;
+                }
+                const dominator = EdgeCost.dominator(currentCost, entry.path.evaluate());
+                if (dominator === undefined) {
+                    continue;
+                }
+                if (dominator === currentCost) {
+                    entry.dominated = true;
+                    continue;
+                }
+                current.dominated = true;
+                break;
+            }
+            current = this.data.find((entry: ISkylineEntry) => !entry.dominated);
+        }
+        return this.data.filter((entry: ISkylineEntry) => !entry.dominated).map((entry: ISkylineEntry) => entry.path);
     }
 
     private pathToEntry(path: Path): ISkylineEntry {
