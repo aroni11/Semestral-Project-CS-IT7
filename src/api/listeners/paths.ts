@@ -82,7 +82,7 @@ export function pathsListener(socket: any) {
         status: 'simplifiedGraph'
       });
 
-      const paths = simplified.topK(startNode._id, endNode._id, dijkstra, TOP_K_PATHS);
+      const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
 
       socket.emit('message', {
         status: 'foundTopK'
@@ -166,7 +166,7 @@ function generateResponse(
     },
     {
       name: `Computed path #${index}`,
-      costs: path.evaluate()
+      costs: path.evaluate().getCosts
     }));
 
   return featureCollection([
