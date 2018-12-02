@@ -1,11 +1,16 @@
-import {PathFinder} from '../../../config';
+import {CostFunction, PathFinder} from '../../../config';
 import Edge from '../models/edge';
 import Graph from '../models/graph';
 import Vertex from '../models/vertex';
 import Path from './path';
 
-export default function(graph: Graph, start: number, end: number, pathFinder: PathFinder, topK: number): Path[] {
-  const paths: Path[] = [pathFinder(start, end, graph)];
+export default function(graph: Graph,
+                        start: number,
+                        end: number,
+                        pathFinder: PathFinder,
+                        costsFunction: CostFunction,
+                        topK: number): Path[] {
+  const paths: Path[] = [pathFinder(start, end, graph, costsFunction)];
   const alternativePaths: Path[] = [];
   let deletedEdges: Array<[number, Edge]> = [];
   let deletedVertices: Vertex[] = [];
@@ -44,7 +49,7 @@ export default function(graph: Graph, start: number, end: number, pathFinder: Pa
 
       // Calculate the spur path from the spur node to the sink.
       try {
-        const spurPath = pathFinder(spur.vertex.id, end, graph);
+        const spurPath = pathFinder(spur.vertex.id, end, graph, costsFunction);
 
         // Entire path is made up of the root path and spur path.
         // totalPath = rootPath + spurPath;
@@ -86,5 +91,5 @@ export default function(graph: Graph, start: number, end: number, pathFinder: Pa
     }
     paths.push(alternativePaths[0]);
   }
-  return paths;
+  return paths.concat(alternativePaths);
 }

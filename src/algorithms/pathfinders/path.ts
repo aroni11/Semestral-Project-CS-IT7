@@ -35,7 +35,7 @@ export default class Path {
     //
     // const diversity = (sameVertices / a.pathData.length) * 2 + 1;
     // return a.evaluate().time * diversity - b.evaluate().time;
-    return a.evaluate().distance - b.evaluate().distance;
+    return a.evaluate().getCost('distance') - b.evaluate().getCost('distance');
   }
 
   pathData: Edge[];

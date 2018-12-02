@@ -38,7 +38,7 @@ export async function pathsHandler(req: Request, res: Response) {
 
     const simplified = graph.simplifyGraph(startNode._id, endNode._id, SIMPLIFICATION_ROUNDS);
 
-    const paths = simplified.topK(startNode._id, endNode._id, dijkstra, TOP_K_PATHS);
+    const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
 
     const pathsCoordinates = paths.map((path) => path.pathData.map((edge) => [
       edge.vertex.lng,
