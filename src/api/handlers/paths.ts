@@ -6,7 +6,7 @@ import {Request, Response} from 'express';
 import {Coordinates, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
-import {SkylineFilter} from '../../algorithms/Skyline/SkylineFilter';
+import {skyline} from '../../algorithms/Skyline/SkylineFilter';
 import {Node} from '../schema/node';
 
 export async function pathsHandler(req: Request, res: Response) {
@@ -39,11 +39,11 @@ export async function pathsHandler(req: Request, res: Response) {
 
     const simplified = graph.simplifyGraph(startNode._id, endNode._id, SIMPLIFICATION_ROUNDS);
 
-    let paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
-    const skyline = new SkylineFilter(paths);
-    paths = skyline.filter();
+    const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
 
-    const pathsCoordinates = paths.map((path) => path.pathData.map((edge) => [
+    const pathsSkyline = skyline(paths);
+
+    const pathsCoordinates = pathsSkyline.map((path) => path.pathData.map((edge) => [
       edge.vertex.lng,
       edge.vertex.lat
     ]) as Coordinates[]);

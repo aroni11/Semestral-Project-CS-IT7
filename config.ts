@@ -59,7 +59,7 @@ export const MAX_NEAREST_DISTANCE = 500;
 /*
  * Amount of kilometers added to start&end nodes boundary rectangle
  */
-export const PATH_POLYGON_MARGIN = 5;
+export const PATH_POLYGON_MARGIN = 2;
 
 /*
  * Define the structure of coordinates we use throughout the application

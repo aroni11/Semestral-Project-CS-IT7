@@ -41,10 +41,11 @@ export class AppComponent {
   startComputed;
   end;
   endComputed;
+  boundaryRectangle;
   routes = [];
   routesProperties = [];
   palette = ['#002db3', '#0033cc', '#0039e6', '#0040ff', '#1a53ff', '#3366ff',
-    '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff', '#e6ecff'];
+    '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff'];
   currentColor = 0;
 
   loading = -1;
@@ -107,7 +108,7 @@ export class AppComponent {
   }
 
   deletePoint(garPoint, name: string): void {
-    garPoint.removeFrom(this.garMap); // TODO
+    garPoint.removeFrom(this.garMap);
     delete this.layersControl.overlays[name];
   }
 
@@ -116,6 +117,7 @@ export class AppComponent {
     this.snackBar.open('Finding the nearest road nodes...', null, {
       duration: 5000
     });
+    this.clearComputedPoints();
     const subscription = this.pathsService.getPaths([
       this.start.getLatLng().lng,
       this.start.getLatLng().lat
@@ -136,14 +138,23 @@ export class AppComponent {
             duration: 5000
           });
           subscription.unsubscribe();
+        } else if (status === 'foundNearestRoads') {
+          this.addPoints([data.computedStart, data.computedEnd]);
+        } else if (status === 'computedBoundaryRectangle') {
+          this.addPolygon(data);
+          this.garMap.fitBounds(this.boundaryRectangle.getBounds(), {
+            padding: point(24, 24),
+            animate: true
+          });
         } else if (status === 'finished') {
           this.loading = -1;
           subscription.unsubscribe();
           const paths = JSON.parse(data);
 
-          this.clearMapData();
-          const points = paths.features.filter((feature) => feature.geometry.type === 'Point');
+          const points = paths.features.filter((feature) => feature.geometry.type === 'Point').slice(0, 2);
           const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString').slice(0, 20);
+
+          this.clearMapData();
 
           this.addPoints(points);
 
@@ -190,7 +201,11 @@ export class AppComponent {
     }
   }
 
-  clearMapData(): void {
+  clearMapData(computed: boolean = false): void {
+    if (this.boundaryRectangle) {
+      this.boundaryRectangle.removeFrom(this.garMap);
+    }
+
     for (const route of this.routes) {
       route.removeFrom(this.garMap);
     }
@@ -203,6 +218,12 @@ export class AppComponent {
     if (this.end) {
       this.deletePoint(this.end, 'Original end');
     }
+    if (computed) {
+      this.clearComputedPoints();
+    }
+  }
+
+  clearComputedPoints(): void {
     if (this.startComputed) {
       this.deletePoint(this.startComputed, 'Computed start');
     }
@@ -242,6 +263,11 @@ export class AppComponent {
     });
   }
 
+  addPolygon(polygon): void {
+    this.boundaryRectangle = geoJSON(polygon).bindPopup(() => 'Boundary rectangle').addTo(this.garMap);
+    this.layersControl.overlays['Boundary rectangle'] = this.boundaryRectangle;
+  }
+
   addProgress(step: string): number {
     switch (step) {
       case 'foundNearestRoads':
@@ -270,10 +296,15 @@ export class AppComponent {
         });
         return 5;
       case 'foundTopK':
+        this.snackBar.open('Computing the skyline...', null, {
+          duration: 100000
+        });
+        return 10;
+      case 'computedSkyline':
         this.snackBar.open('Done!', null, {
           duration: 3000
         });
-        return 15;
+        return 5;
       default:
         return 0;
     }

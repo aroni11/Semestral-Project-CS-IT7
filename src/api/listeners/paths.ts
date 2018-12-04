@@ -1,11 +1,13 @@
 import distance from '@turf/distance';
-import {feature, Feature, featureCollection, lineString, Polygon} from '@turf/helpers';
+import {feature, Feature, featureCollection, lineString, Point, Polygon} from '@turf/helpers';
+import {FeatureCollection} from '@turf/helpers/lib/geojson';
 import lineToPolygon from '@turf/line-to-polygon';
 import transformScale from '@turf/transform-scale';
 import {Coordinates, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import Path from '../../algorithms/pathfinders/path';
+import {skyline} from '../../algorithms/Skyline/SkylineFilter';
 import {Node} from '../schema/node';
 
 export function pathsListener(socket: any) {
@@ -44,15 +46,16 @@ export function pathsListener(socket: any) {
       socket.emit('message', {
         status: 'foundNearestRoads',
         data: {
-          computedStart: startNode,
-          computedEnd: endNode
+          computedStart: createPoint(startNode.loc.coordinates, 'Computed start'),
+          computedEnd: createPoint(endNode.loc.coordinates, 'Computed end')
         }
       });
 
       const boundaryRectangle = createBoundaryRectangle(startNode.loc.coordinates, endNode.loc.coordinates);
 
       socket.emit('message', {
-        status: 'computedBoundaryRectangle'
+        status: 'computedBoundaryRectangle',
+        data: boundaryRectangle
       });
 
       const roads = await Node.findRoadsWithin(boundaryRectangle.geometry.coordinates[0] as Coordinates[]);
@@ -88,7 +91,13 @@ export function pathsListener(socket: any) {
         status: 'foundTopK'
       });
 
-      const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, paths));
+      const pathsSkyline = skyline(paths);
+
+      socket.emit('message', {
+        status: 'computedSkyline'
+      });
+
+      const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));
 
       return socket.emit('message', {
         status: 'finished',
@@ -128,35 +137,11 @@ function generateResponse(
   end: Coordinates,
   computedStart: Coordinates,
   computedEnd: Coordinates,
-  paths: Path[]) {
-  const startFeature = feature({
-      type: 'Point',
-      coordinates: start
-    },
-    {
-      name: 'Original start'
-    });
-  const endFeature = feature({
-      type: 'Point',
-      coordinates: end
-    },
-    {
-      name: 'Original end'
-    });
-  const computedStartFeature = feature({
-      type: 'Point',
-      coordinates: computedStart
-    },
-    {
-      name: 'Computed start'
-    });
-  const computedEndFeature = feature({
-      type: 'Point',
-      coordinates: computedEnd
-    },
-    {
-      name: 'Computed end'
-    });
+  paths: Path[]): FeatureCollection {
+  const startFeature = createPoint(start, 'Original start');
+  const endFeature = createPoint(end, 'Original end');
+  const computedStartFeature = createPoint(computedStart, 'Computed start');
+  const computedEndFeature = createPoint(computedEnd, 'Computed end');
   const pathFeatures = paths.map((path, index) => feature({
       type: 'LineString',
       coordinates: path.pathData.map((edge) => [
@@ -176,4 +161,14 @@ function generateResponse(
     computedEndFeature,
     ...pathFeatures
   ]);
+}
+
+function createPoint(coordinates: Coordinates, name: string = 'Undefined point'): Feature<Point> {
+  return feature({
+      type: 'Point',
+      coordinates
+    },
+    {
+      name
+    });
 }

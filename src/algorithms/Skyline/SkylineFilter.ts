@@ -52,3 +52,8 @@ export class SkylineFilter {
         return {path, dominated: false, dominator: false};
     }
 }
+
+export function skyline(paths: Path[]): Path[] {
+  const iDontLikeClassesBehavingLikeFunctions = new SkylineFilter(paths);
+  return iDontLikeClassesBehavingLikeFunctions.filter();
+}

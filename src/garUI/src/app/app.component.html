@@ -32,9 +32,11 @@
     <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
     <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
       <h2 class="sidenav-title"><span matBadge="{{routes.length >= 20 ? '20+' : routes.length}}">Routes</span></h2>
-      <div *ngFor="let routeProp of routesProperties">
-        <h3>{{routeProp.name}}</h3>
-        <p class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</p>
+      <div *ngFor="let routeProp of routesProperties; let i = index">
+        <p>
+          <span class="sidenav-route-name">#{{i + 1}}</span>
+          <span class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</span>
+        </p>
       </div>
     </div>
     <mat-divider></mat-divider>

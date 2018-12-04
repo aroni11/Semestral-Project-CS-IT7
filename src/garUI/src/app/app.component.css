@@ -84,8 +84,10 @@ mat-divider {
   font-size: 80%;
 }
 
-.sidenav-route-info h3 {
-  margin-bottom: 0.3em;
+.sidenav-route-name {
+  font-weight: bold;
+  font-size: 115%;
+  margin-right: 0.8em;
 }
 
 .sidenav-route-costs {
