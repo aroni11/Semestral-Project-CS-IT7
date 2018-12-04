@@ -93,4 +93,8 @@ export default class Path {
     string += ']';
     return string;
   }
+
+  dominates(dominatee: Path): boolean {
+    return this.evaluate().dominates(dominatee.evaluate());
+  }
 }
