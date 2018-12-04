@@ -1,10 +1,30 @@
 import distance from '@turf/distance';
+import {CostFunction} from '../../../config';
+import reducers from '../helpers/cost-reducers';
 import Vertex from './vertex';
 
 /**
  * Edges represent a relation between two vertices.
  */
 class EdgeCost {
+
+  /**
+   * Returns a zero cost
+   */
+  static get zero(): EdgeCost {
+    const zeroObj = new EdgeCost();
+    zeroObj.setCost('distance', 0);
+    zeroObj.setCost('time', 0);
+    zeroObj.setCost('road_cost', 7);
+    return zeroObj as EdgeCost;
+  }
+
+  /**
+   * Get edge costs
+   */
+  public get getCosts(): { [index: string]: number } {
+    return this.costs;
+  }
   /**
    * Object containing cost keys, and a method for extrapolating the cost on the associated key.
    */
@@ -20,30 +40,21 @@ class EdgeCost {
   };
 
   /**
-   * Compare to edges.
+   * Compare two edges.
    *
    * @param ec1
    * @param ec2
    */
   static equal(ec1: EdgeCost, ec2: EdgeCost): boolean {
     let check = true;
-    Object.keys(EdgeCost.costKeys).forEach((key) => {
+
+    for (const key of Object.keys(EdgeCost.costKeys)) {
       if (ec1.getCost(key) !== ec2.getCost(key)) {
         check = false;
       }
-    });
-    return check;
-  }
+    }
 
-  /**
-   * Returns a zero cost
-   */
-  static get zero(): EdgeCost {
-    const zeroObj = new EdgeCost();
-    zeroObj.setCost('distance', 0);
-    zeroObj.setCost('time', 0);
-    zeroObj.setCost('road_cost', 7);
-    return zeroObj as EdgeCost;
+    return check;
   }
 
   /**
@@ -64,45 +75,33 @@ class EdgeCost {
   }
 
   /**
-   * Reduce all costs to a single value. Can also handle preferences
-   *
-   * @param ecs EdgeCost object
-   * @param pi Preference weight object
-   * @param func Reducer function can be supplied.
-   * @returns An object consisting of
+   * Normalize and compare the costs using the given cost function
+   * @param ec1 EdgeCost the first EdgeCost
+   * @param ec2 EdgeCost the second EdgeCost
+   * @param costFn CostFunction a function to compare the edge costs with
+   * @return number A negative/positive number (used in comp functions)
    */
-  static reduceWithPreferences(
-    ecs: EdgeCost | EdgeCost[],
-    pi: { [index: string]: number },
-    func: (costs: EdgeCost) => number): number {
-    const { costKeys, combine } = EdgeCost;
-    let ec: EdgeCost;
-    if ((ecs as EdgeCost[]).length) {
-      const ecsArr = ecs as EdgeCost[];
-      ec = combine(...ecsArr);
-    } else {
-      ec = ecs as EdgeCost;
-    }
-    Object.keys(costKeys).forEach((key) => {
-      ec.setCost(key, ec.getCost(key) * pi[key]);
-    });
-    return func(ec);
-  }
+  static compare(ec1: EdgeCost, ec2: EdgeCost, costFn: CostFunction = reducers.arithmeticMean): number {
+    const costs1 = ec1.getCosts;
+    const costs2 = ec2.getCosts;
 
-  /**
-   * Reduce all costs to a single value. Preferences are defaulted to 1
-   *
-   * @param ecs EdgeCost object
-   * @param func Reducer function can be supplied.
-   * @returns An object consisting of
-   */
-  static reduce(
-    ecs: EdgeCost | EdgeCost[],
-    func: (costs: EdgeCost) => number): number {
-    const { costKeys } = EdgeCost;
-    const pi: { [index: string]: number } = {};
-    Object.keys(costKeys).forEach((key) => pi[key] = 1);
-    return this.reduceWithPreferences(ecs, pi, func);
+    const normalizedEC1 = new EdgeCost();
+    const normalizedEC2 = new EdgeCost();
+
+    for (const key in costs1) {
+      if (costs1[key] > costs2[key]) {
+        normalizedEC1.getCosts[key] = 1;
+        normalizedEC2.getCosts[key] = costs2[key] / costs1[key];
+      } else {
+        normalizedEC2.getCosts[key] = 1;
+        normalizedEC1.getCosts[key] = costs1[key] / costs2[key];
+      }
+    }
+
+    const ec1Mean = ec1.reduce(costFn);
+    const ec2Mean = ec2.reduce(costFn);
+
+    return ec1Mean - ec2Mean;
   }
 
   private costs: { [index: string]: number } = {};
@@ -122,13 +121,6 @@ class EdgeCost {
   }
 
   /**
-   * Get edge costs
-   */
-  public get getCosts(): { [index: string]: number } {
-    return this.costs;
-  }
-
-  /**
    * Get specific road cost
    *
    * @param key Key of cost to get
@@ -145,6 +137,43 @@ class EdgeCost {
    */
   public setCost(key: string, value: number): void {
     this.costs[key] = value;
+  }
+
+  /**
+   * Reduce all costs to a single value. Can also handle preferences
+   *
+   * @param pi Preference weight object
+   * @param func Reducer function can be supplied.
+   * @returns An object consisting of
+   */
+  reduceWithPreferences(
+    pi: { [index: string]: number },
+    func: CostFunction): number {
+    const { costKeys } = EdgeCost;
+
+    for (const key of Object.keys(costKeys)) {
+      this.setCost(key, this.getCost(key) * pi[key]);
+    }
+
+    return func(this);
+  }
+
+  /**
+   * Reduce all costs to a single value. Preferences are defaulted to 1
+   *
+   * @param func Reducer function can be supplied.
+   * @returns An object consisting of
+   */
+  reduce(
+    func: CostFunction): number {
+    const { costKeys } = EdgeCost;
+    const pi: { [index: string]: number } = {};
+
+    for (const key of Object.keys(costKeys)) {
+      pi[key] = 1;
+    }
+
+    return this.reduceWithPreferences(pi, func);
   }
 
   /**

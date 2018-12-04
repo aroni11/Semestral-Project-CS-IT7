@@ -69,7 +69,7 @@ nodeSchema.statics.findNearest = function(coordinates: Coordinates): Promise<INo
 };
 
 nodeSchema.statics.findNearestRoad = async function(coordinates: Coordinates): Promise<INode> {
-  const nearestNodes = await this.findNearest(coordinates).populate('ways').lean().exec();
+  const nearestNodes = await this.findNearest(coordinates).populate('ways', 'tags.highway').lean().exec();
 
   if (nearestNodes.length === 0) {
     throw new Error(`No road found in the diameter of ${MAX_NEAREST_DISTANCE} meters!`);
@@ -91,7 +91,7 @@ nodeSchema.statics.findWithin = function(polygon: Coordinates[]): Promise<INode[
 };
 
 nodeSchema.statics.findRoadsWithin = async function(polygon: Coordinates[]): Promise<IRoads> {
-  const nodesWithin = await this.findWithin(polygon).populate('ways').lean().exec();
+  const nodesWithin = await this.findWithin(polygon).populate('ways', 'tags.highway tags.oneway tags.junction').lean().exec();
   if (nodesWithin.length === 0) {
     throw new Error(`No road found in the polygon!`);
   }

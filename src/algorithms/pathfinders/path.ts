@@ -25,17 +25,8 @@ export default class Path {
     return true;
   }
 
-  static compare(a: Path, b: Path): number { // TODO diversity? distance? time? make use of compareFunc
-    // let sameVertices = 0;
-    // for (const edgeA of a.pathData) {
-    //   if (b.pathData.some((edgeB) => edgeA.vertex.id === edgeB.vertex.id)) {
-    //     sameVertices++;
-    //   }
-    // }
-    //
-    // const diversity = (sameVertices / a.pathData.length) * 2 + 1;
-    // return a.evaluate().time * diversity - b.evaluate().time;
-    return a.evaluate().getCost('distance') - b.evaluate().getCost('distance');
+  static compare(a: Path, b: Path): number {
+    return EdgeCost.compare(a.evaluate(), b.evaluate());
   }
 
   pathData: Edge[];

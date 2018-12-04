@@ -4,7 +4,7 @@
                [mode]="(isHandset$ | async) ? 'over' : 'side'"
                [opened]="!(isHandset$ | async)">
     <div class="sidenav-wrap">
-      <h2 class="sidenav-title">Start point</h2>
+      <h3 class="sidenav-title">Start point</h3>
       <div class="point-coords" *ngIf="start">[{{start.getLatLng().lat}}, {{start.getLatLng().lng}}]</div>
       <div class="point-coords point-coords-warn" *ngIf="!start">Start point not set!</div>
       <button class="marker-button" *ngIf="!start && pickedPoint !== 'start'" mat-stroked-button color="warn" (click)="togglePick('start')"><i class="material-icons">pin_drop</i></button>
@@ -13,7 +13,7 @@
       <button class="marker-button" *ngIf="start" mat-stroked-button color="warn" (click)="deletePoint('start')"><i class="material-icons">delete</i></button>
     </div>
     <div class="sidenav-wrap">
-      <h2 class="sidenav-title">End point</h2>
+      <h3 class="sidenav-title">End point</h3>
       <div class="point-coords" *ngIf="end">[{{end.getLatLng().lat}}, {{end.getLatLng().lng}}]</div>
       <div class="point-coords point-coords-warn" *ngIf="!end">Start point not set!</div>
       <button class="marker-button" *ngIf="!end && pickedPoint !== 'end'" mat-stroked-button color="warn" (click)="togglePick('end')"><i class="material-icons">pin_drop</i></button>
@@ -31,7 +31,7 @@
     </div>
     <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
     <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
-      <h2 class="sidenav-title"><span matBadge="{{routes.length > 20 ? '20+' : routes.length}}">Routes</span></h2>
+      <h2 class="sidenav-title"><span matBadge="{{routes.length >= 20 ? '20+' : routes.length}}">Routes</span></h2>
       <div *ngFor="let routeProp of routesProperties">
         <h3>{{routeProp.name}}</h3>
         <p class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</p>
