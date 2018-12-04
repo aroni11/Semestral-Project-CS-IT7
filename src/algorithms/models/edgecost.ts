@@ -135,31 +135,27 @@ class EdgeCost {
   }
 
   getSum() {
-    let costSum = 0;
-    for (const key of Object.keys(this)) {
-      costSum += (this as any)[key];
-    }
-    return costSum;
+    let sum = 0;
+    Object.keys(this.costs).forEach((key) => sum += this.costs[key]);
+    return sum;
   }
 
   /**
-   * Check if a path dominates the other
-   * @param dominator : the path checked to dominate
+   * Check if this path dominates the other
    * @param dominatee : the path checked to be dominated
    */
   dominates(dominatee: EdgeCost): boolean {
     if (this.getSum() >= dominatee.getSum()) {
       return false;
     }
-    for (const key in this) {
-      if (this.hasOwnProperty(key)) {
-        const dominatorValue = (this as any)[key];
-        const dominateeValue = (dominatee as any)[key];
+    for (const key in this.costs) {
+      if (this.costs.hasOwnProperty(key)) {
+        const dominatorValue = this.costs[key];
+        const dominateeValue = dominatee.costs[key];
         if (dominatorValue > dominateeValue) {
           return false;
         }
       }
-
     }
     return true;
   }
