@@ -63,6 +63,19 @@ class EdgeCost {
     return res;
   }
 
+  static dominator(lhs: EdgeCost, rhs: EdgeCost): EdgeCost {
+    let dominator: EdgeCost;
+    let dominatee: EdgeCost;
+    if (lhs.getSum() < rhs.getSum()) {
+        dominator = lhs;
+        dominatee = rhs;
+    } else {
+        dominator = rhs;
+        dominatee = lhs;
+    }
+    return (dominator.dominates(dominatee)) ? dominator : undefined;
+  }
+
   /**
    * Reduce all costs to a single value. Can also handle preferences
    *
@@ -121,6 +134,31 @@ class EdgeCost {
     this.setRoadCost(road_type);
   }
 
+  getSum() {
+    let sum = 0;
+    Object.keys(this.costs).forEach((key) => sum += this.costs[key]);
+    return sum;
+  }
+
+  /**
+   * Check if this path dominates the other
+   * @param dominatee : the path checked to be dominated
+   */
+  dominates(dominatee: EdgeCost): boolean {
+    if (this.getSum() >= dominatee.getSum()) {
+      return false;
+    }
+    for (const key in this.costs) {
+      if (this.costs.hasOwnProperty(key)) {
+        const dominatorValue = this.costs[key];
+        const dominateeValue = dominatee.costs[key];
+        if (dominatorValue > dominateeValue) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
   /**
    * Get edge costs
    */
@@ -217,6 +255,7 @@ class EdgeCost {
     }
     this.costs.time = this.costs.distance / max_speed; // TODO milliseconds?
   }
+
 }
 
 export default EdgeCost;
