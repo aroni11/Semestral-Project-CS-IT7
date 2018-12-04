@@ -29,6 +29,10 @@ export function pathsListener(socket: any) {
         data: 'Start and/or end point(s) missing'
       });
     }
+
+    const simplificationRounds = data.simplificationRounds !== undefined ? data.simplificationRounds : SIMPLIFICATION_ROUNDS;
+    const topK = data.topK !== undefined ? data.topK : TOP_K_PATHS;
+
     const start = data.coordinates[0];
     const end = data.coordinates[1];
 
@@ -79,13 +83,13 @@ export function pathsListener(socket: any) {
         status: 'builtGraph'
       });
 
-      const simplified = graph.simplifyGraph(startNode._id, endNode._id, SIMPLIFICATION_ROUNDS);
+      const simplified = graph.simplifyGraph(startNode._id, endNode._id, simplificationRounds);
 
       socket.emit('message', {
         status: 'simplifiedGraph'
       });
 
-      const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
+      const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, topK);
 
       socket.emit('message', {
         status: 'foundTopK'

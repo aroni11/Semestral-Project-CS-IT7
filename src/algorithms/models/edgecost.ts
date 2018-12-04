@@ -141,7 +141,7 @@ class EdgeCost {
 
   /**
    * Check if this path dominates the other
-   * @param dominatee : the path checked to be dominated
+   * @param dominatee: EdgeCost the path checked to be dominated
    */
   dominates(dominatee: EdgeCost): boolean {
     if (this.getSum() >= dominatee.getSum()) {
@@ -282,7 +282,7 @@ class EdgeCost {
         max_speed = 50;
         break;
     }
-    this.costs.time = this.costs.distance / max_speed; // TODO milliseconds?
+    this.costs.time = this.costs.distance / max_speed;
   }
 
 }

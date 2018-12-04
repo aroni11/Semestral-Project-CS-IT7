@@ -29,6 +29,34 @@
       <h3 class="sidenav-title">Computed end</h3>
       <div class="point-coords">[{{endComputed.getLatLng().lat}}, {{endComputed.getLatLng().lng}}]</div>
     </div>
+    <mat-divider></mat-divider>
+    <div class="sidenav-wrap">
+      <h3 class="sidenav-title">Settings</h3>
+      <form>
+        <mat-form-field>
+          <input matInput placeholder="Simplification rounds" [formControl]="simplificationFormControl"
+                 [errorStateMatcher]="matcher" type="number">
+          <mat-hint># of graph simplifications</mat-hint>
+          <mat-error *ngIf="(simplificationFormControl.hasError('min') || simplificationFormControl.hasError('max')) && !simplificationFormControl.hasError('required')">
+            Enter a number between 0 and 10
+          </mat-error>
+          <mat-error *ngIf="simplificationFormControl.hasError('required')">
+            This field is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Top K" [formControl]="topKFormControl"
+                 [errorStateMatcher]="matcher" type="number">
+          <mat-hint># of iterations of Yen's alg.</mat-hint>
+          <mat-error *ngIf="(topKFormControl.hasError('min') || topKFormControl.hasError('max')) && !topKFormControl.hasError('required')">
+            Enter a number between 0 and 30
+          </mat-error>
+          <mat-error *ngIf="topKFormControl.hasError('required')">
+            This field is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+      </form>
+    </div>
     <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
     <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
       <h2 class="sidenav-title"><span matBadge="{{routes.length >= 20 ? '20+' : routes.length}}">Routes</span></h2>
@@ -69,7 +97,7 @@
       [value]="loading"
       [bufferValue]="0">
     </mat-progress-bar>
-    <button class="mat-fab fab" *ngIf="start && end" (click)="generatePaths()"><img src="assets/destination.svg"></button>
+    <button class="mat-fab fab" *ngIf="start && end && topKFormControl.valid && simplificationFormControl.valid" (click)="generatePaths()"><img src="assets/destination.svg"></button>
   </mat-sidenav-content>
 </mat-sidenav-container>
 

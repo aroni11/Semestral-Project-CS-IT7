@@ -3,8 +3,16 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { geoJSON, icon, latLng, Map, marker, point, tileLayer } from 'leaflet';
-import { MatSidenav, MatSnackBar } from '@angular/material';
+import { ErrorStateMatcher, MatSidenav, MatSnackBar } from '@angular/material';
 import { PathsService } from './paths.service';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return control && control.invalid && (control.dirty || control.touched || isSubmitted);
+  }
+}
 
 @Component({
   selector: 'app-root',
@@ -43,6 +51,7 @@ export class AppComponent {
   endComputed;
   boundaryRectangle;
   routes = [];
+
   routesProperties = [];
   palette = ['#002db3', '#0033cc', '#0039e6', '#0040ff', '#1a53ff', '#3366ff',
     '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff'];
@@ -66,6 +75,18 @@ export class AppComponent {
     zoom: 13,
     center: latLng([ 57.0366, 9.9223 ])
   };
+
+  simplificationFormControl = new FormControl(5, [
+    Validators.required,
+    Validators.min(0),
+    Validators.max(10)
+  ]);
+  topKFormControl = new FormControl(5, [
+    Validators.required,
+    Validators.min(0),
+    Validators.max(30)
+  ]);
+  matcher = new MyErrorStateMatcher();
 
   togglePick(garPoint: string): void {
     if (this.pickedPoint === garPoint) {
@@ -124,7 +145,10 @@ export class AppComponent {
     ], [
       this.end.getLatLng().lng,
       this.end.getLatLng().lat
-    ]).subscribe((chunk) => {
+    ],
+      this.simplificationFormControl.value,
+      this.topKFormControl.value
+    ).subscribe((chunk) => {
         const nextObject = chunk as unknown as object;
         const status = nextObject['status'];
         const data = nextObject['data'];
@@ -134,6 +158,9 @@ export class AppComponent {
         if (status === 'error') {
           console.log('Error caught!', data);
           this.loading = -1;
+          if (this.boundaryRectangle) {
+            this.boundaryRectangle.removeFrom(this.garMap);
+          }
           this.snackBar.open(`An error occurred: ${data}`, null, {
             duration: 5000
           });
@@ -142,10 +169,7 @@ export class AppComponent {
           this.addPoints([data.computedStart, data.computedEnd]);
         } else if (status === 'computedBoundaryRectangle') {
           this.addPolygon(data);
-          this.garMap.fitBounds(this.boundaryRectangle.getBounds(), {
-            padding: point(24, 24),
-            animate: true
-          });
+          this.garMap.fitBounds(this.boundaryRectangle.getBounds());
         } else if (status === 'finished') {
           this.loading = -1;
           subscription.unsubscribe();
@@ -175,6 +199,9 @@ export class AppComponent {
       (error) => {
         console.log('Error caught!', error);
         this.loading = -1;
+        if (this.boundaryRectangle) {
+          this.boundaryRectangle.removeFrom(this.garMap);
+        }
         this.snackBar.open(`An error occurred: ${error.message}`, null, {
           duration: 5000
         });

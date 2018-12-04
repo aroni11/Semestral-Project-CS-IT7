@@ -82,6 +82,7 @@ mat-divider {
 
 .sidenav-route-info {
   font-size: 80%;
+  text-align: left;
 }
 
 .sidenav-route-name {
@@ -93,4 +94,12 @@ mat-divider {
 .sidenav-route-costs {
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
   margin: 0;
+}
+
+.sidenav-wrap form mat-form-field {
+  margin-bottom: 1em;
+}
+
+mat-error {
+  color: darkorange;
 }
