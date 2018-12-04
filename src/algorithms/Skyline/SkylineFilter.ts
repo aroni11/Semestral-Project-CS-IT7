@@ -4,6 +4,7 @@ import Path from '../pathfinders/path';
 interface ISkylineEntry {
     path: Path;
     dominated: boolean;
+    dominator: boolean;
 }
 /**
  * Implements simple nested loop skyline filter.
@@ -39,12 +40,15 @@ export class SkylineFilter {
                 current.dominated = true;
                 break;
             }
-            current = this.data.find((entry: ISkylineEntry) => !entry.dominated);
+            if (!current.dominated) {
+                current.dominator = true;
+            }
+            current = this.data.find((entry: ISkylineEntry) => (!entry.dominated && !entry.dominator));
         }
-        return this.data.filter((entry: ISkylineEntry) => !entry.dominated).map((entry: ISkylineEntry) => entry.path);
+        return this.data.filter((entry: ISkylineEntry) => entry.dominator).map((entry: ISkylineEntry) => entry.path);
     }
 
     private pathToEntry(path: Path): ISkylineEntry {
-        return {path, dominated: false};
+        return {path, dominated: false, dominator: false};
     }
 }
