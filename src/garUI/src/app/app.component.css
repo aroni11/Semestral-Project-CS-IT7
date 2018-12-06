@@ -3,7 +3,11 @@
 }
 
 .sidenav {
-  width: 200px;
+  width: 220px;
+}
+
+.sidenav-wrap {
+  margin: 0.5em;
 }
 
 .sidenav .mat-toolbar {
@@ -14,6 +18,18 @@
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+.toolbar-icon {
+  padding: 0 0.3em;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.hidden {
+  display: none;
 }
 
 #map {
@@ -102,4 +118,9 @@ mat-divider {
 
 mat-error {
   color: darkorange;
+}
+
+app-skyline {
+  width: 100px;
+  height: 100%;
 }

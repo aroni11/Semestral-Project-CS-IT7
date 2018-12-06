@@ -19,10 +19,12 @@ import { PathsService } from './paths.service';
 import { HttpClientModule } from '@angular/common/http';
 import { WebsocketService } from './websocket-service.service';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { SkylineComponent } from './skyline/skyline.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SkylineComponent
   ],
   imports: [
     BrowserModule,

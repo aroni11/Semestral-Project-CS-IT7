@@ -6,6 +6,7 @@ import { geoJSON, icon, latLng, Map, marker, point, tileLayer } from 'leaflet';
 import { ErrorStateMatcher, MatSidenav, MatSnackBar } from '@angular/material';
 import { PathsService } from './paths.service';
 import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { SkylineComponent } from './skyline/skyline.component';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -21,11 +22,14 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class AppComponent {
   @ViewChild('drawer') sidebar: MatSidenav;
+  @ViewChild(SkylineComponent) private skyline: SkylineComponent;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
       map(result => result.matches)
     );
+
+  displayedContent = 'map';
 
   garMap;
   pickedPoint;
@@ -52,6 +56,7 @@ export class AppComponent {
   boundaryRectangle;
   routes = [];
 
+  skylineData = [];
   routesProperties = [];
   palette = ['#002db3', '#0033cc', '#0039e6', '#0040ff', '#1a53ff', '#3366ff',
     '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff'];
@@ -170,6 +175,10 @@ export class AppComponent {
         } else if (status === 'computedBoundaryRectangle') {
           this.addPolygon(data);
           this.garMap.fitBounds(this.boundaryRectangle.getBounds());
+        } else if (status === 'foundTopK') {
+          this.skylineData = data;
+        } else if (status === 'computedSkyline') {
+          // console.log(data);
         } else if (status === 'finished') {
           this.loading = -1;
           subscription.unsubscribe();

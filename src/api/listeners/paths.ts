@@ -92,13 +92,15 @@ export function pathsListener(socket: any) {
       const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, topK);
 
       socket.emit('message', {
-        status: 'foundTopK'
+        status: 'foundTopK',
+        data: paths.map((path) => path.evaluate().getCosts)
       });
 
       const pathsSkyline = skyline(paths);
 
       socket.emit('message', {
-        status: 'computedSkyline'
+        status: 'computedSkyline',
+        data: pathsSkyline.map((path) => path.evaluate().getCosts)
       });
 
       const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));

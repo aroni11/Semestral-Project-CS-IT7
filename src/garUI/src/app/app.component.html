@@ -29,9 +29,60 @@
       <h3 class="sidenav-title">Computed end</h3>
       <div class="point-coords">[{{endComputed.getLatLng().lat}}, {{endComputed.getLatLng().lng}}]</div>
     </div>
+    <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
+    <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
+      <h2 class="sidenav-title"><span matBadge="{{routes.length >= 20 ? '20+' : routes.length}}">Routes</span></h2>
+      <div *ngFor="let routeProp of routesProperties; let i = index">
+        <p>
+          <span class="sidenav-route-name">#{{i + 1}}</span>
+          <span class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</span>
+        </p>
+      </div>
+    </div>
     <mat-divider></mat-divider>
-    <div class="sidenav-wrap">
-      <h3 class="sidenav-title">Settings</h3>
+    <div class="credits">Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span>Generating (Good) Alternative Routes</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-icon-button (click)="displayedContent='map'">
+        <mat-icon class="toolbar-icon">map</mat-icon>
+      </button>
+      <button mat-icon-button (click)="displayedContent='skyline';skyline.drawSkyline(skylineData)" [disabled]="skylineData.length === 0">
+        <mat-icon class="toolbar-icon">timeline</mat-icon>
+      </button>
+      <button mat-icon-button (click)="displayedContent='settings'">
+        <mat-icon class="toolbar-icon">settings</mat-icon>
+      </button>
+    </mat-toolbar>
+    <div [class.hidden]="displayedContent !== 'map'"
+         id="map"
+         leaflet
+         (leafletMapReady)="onMapReady($event)"
+         (leafletClick)="mapClick($event)"
+         [leafletOptions]="options"
+         [leafletLayersControl]="layersControl">
+    </div>
+    <mat-progress-bar
+      *ngIf="loading !== -1"
+      class="progress-bar"
+      color="warn"
+      mode="determinate"
+      [value]="loading"
+      [bufferValue]="0">
+    </mat-progress-bar>
+    <button class="mat-fab fab" *ngIf="start && end && topKFormControl.valid && simplificationFormControl.valid && displayedContent === 'map'" (click)="generatePaths()"><img src="assets/destination.svg"></button>
+    <app-skyline [class.hidden]="displayedContent !== 'skyline'"></app-skyline>
+    <div [class.hidden]="displayedContent !== 'settings'" class="sidenav-wrap">
       <form>
         <mat-form-field>
           <input matInput placeholder="Simplification rounds" [formControl]="simplificationFormControl"
@@ -57,47 +108,6 @@
         </mat-form-field>
       </form>
     </div>
-    <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
-    <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
-      <h2 class="sidenav-title"><span matBadge="{{routes.length >= 20 ? '20+' : routes.length}}">Routes</span></h2>
-      <div *ngFor="let routeProp of routesProperties; let i = index">
-        <p>
-          <span class="sidenav-route-name">#{{i + 1}}</span>
-          <span class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</span>
-        </p>
-      </div>
-    </div>
-    <mat-divider></mat-divider>
-    <div class="credits">Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button
-        type="button"
-        aria-label="Toggle sidenav"
-        mat-icon-button
-        (click)="drawer.toggle()"
-        *ngIf="isHandset$ | async">
-        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-      </button>
-      <span>Generating (Good) Alternative Routes</span>
-    </mat-toolbar>
-    <div id="map"
-         leaflet
-         (leafletMapReady)="onMapReady($event)"
-         (leafletClick)="mapClick($event)"
-         [leafletOptions]="options"
-         [leafletLayersControl]="layersControl">
-    </div>
-    <mat-progress-bar
-      *ngIf="loading !== -1"
-      class="progress-bar"
-      color="warn"
-      mode="determinate"
-      [value]="loading"
-      [bufferValue]="0">
-    </mat-progress-bar>
-    <button class="mat-fab fab" *ngIf="start && end && topKFormControl.valid && simplificationFormControl.valid" (click)="generatePaths()"><img src="assets/destination.svg"></button>
   </mat-sidenav-content>
 </mat-sidenav-container>
 
