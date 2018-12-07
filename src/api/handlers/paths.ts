@@ -19,6 +19,9 @@ export async function pathsHandler(req: Request, res: Response) {
   const end = req.body.coordinates[1];
 
   try {
+    const startNode = await Node.findNearestRoad(start);
+    const endNode = await Node.findNearestRoad(end);
+
     if (!(startNode && endNode)) {
       return res.status(422).send('Start and/or end point(s) are too far from the nearest existing node in the database');
     }
