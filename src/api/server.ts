@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import mongoose, {ConnectionOptions} from 'mongoose';
 import socketIo from 'socket.io';
-import {MONGO_OPTIONS, MONGO_URI, SERVER_PORT} from '../../config';
+import {MONGO_OPTIONS, MONGO_URI, SERVER_PORT, SOCKET_IO_PING_INTERVAL, SOCKET_IO_PING_TIMEOUT} from '../../config';
 import {findByIdHandler} from './handlers/findById';
 import {listHandler} from './handlers/list';
 import {nodesWithinHandler} from './handlers/nodesWithin';
@@ -35,7 +35,10 @@ const server = app.listen(SERVER_PORT, () => {
   console.log(`Server is up and listening on port ${SERVER_PORT}.`);
 });
 
-const io = socketIo.listen(server);
+const io = socketIo.listen(server, {
+  pingInterval: SOCKET_IO_PING_INTERVAL,
+  pingTimeout: SOCKET_IO_PING_TIMEOUT
+});
 
 io.of('/socket/paths').on('connection', pathsListener);
 

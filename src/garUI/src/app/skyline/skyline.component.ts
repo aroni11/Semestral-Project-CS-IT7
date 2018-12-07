@@ -52,7 +52,7 @@ export class SkylineComponent implements OnInit {
       .data(series)
       .enter().append('circle')
       .attr('class', 'point')
-      .attr('r', (d) => d.z / 12);
+      .attr('r', (d) => d.z / 14);
 
     const draw = function() {
       const mainFrameWidth = (d3.select('mat-sidenav-content').node() as HTMLElement).getBoundingClientRect().width;

@@ -18,7 +18,7 @@ export function pathsListener(socket: any) {
 
   socket.on('message', async (message: any) => {
     console.log('Message Received: ' + message);
-
+    const t0 = Date.now();
     const data = JSON.parse(message);
 
     if ( !data.coordinates
@@ -46,7 +46,7 @@ export function pathsListener(socket: any) {
           data: 'Start and/or end point(s) are too far from the nearest existing node in the database'
         });
       }
-
+      console.log('foundNearestRoads', (Date.now() - t0) / 1000);
       socket.emit('message', {
         status: 'foundNearestRoads',
         data: {
@@ -56,7 +56,7 @@ export function pathsListener(socket: any) {
       });
 
       const boundaryRectangle = createBoundaryRectangle(startNode.loc.coordinates, endNode.loc.coordinates);
-
+      console.log('computedBoundaryRectangle', (Date.now() - t0) / 1000);
       socket.emit('message', {
         status: 'computedBoundaryRectangle',
         data: boundaryRectangle
@@ -72,43 +72,44 @@ export function pathsListener(socket: any) {
           data: 'No nodes and/or ways found'
         });
       }
-
+      console.log('foundRoadsWithin', (Date.now() - t0) / 1000);
       socket.emit('message', {
         status: 'foundRoadsWithin'
       });
 
       const graph = graphBuilder(nodes, ways);
-
+      console.log('builtGraph', (Date.now() - t0) / 1000);
       socket.emit('message', {
         status: 'builtGraph'
       });
 
       const simplified = graph.simplifyGraph(startNode._id, endNode._id, simplificationRounds);
-
+      console.log('simplifiedGraph', (Date.now() - t0) / 1000);
       socket.emit('message', {
         status: 'simplifiedGraph'
       });
+      setTimeout(() => { // TODO simplifiedGraph status not sent otherwise
+        const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, topK);
+        console.log('foundTopK', (Date.now() - t0) / 1000);
+        socket.emit('message', {
+          status: 'foundTopK',
+          data: paths.map((path) => path.evaluate().getCosts)
+        });
 
-      const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, topK);
+        const pathsSkyline = skyline(paths);
+        console.log('computedSkyline', (Date.now() - t0) / 1000);
+        socket.emit('message', {
+          status: 'computedSkyline',
+          data: pathsSkyline.map((path) => path.evaluate().getCosts)
+        });
 
-      socket.emit('message', {
-        status: 'foundTopK',
-        data: paths.map((path) => path.evaluate().getCosts)
-      });
-
-      const pathsSkyline = skyline(paths);
-
-      socket.emit('message', {
-        status: 'computedSkyline',
-        data: pathsSkyline.map((path) => path.evaluate().getCosts)
-      });
-
-      const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));
-
-      return socket.emit('message', {
-        status: 'finished',
-        data: response
-      });
+        const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));
+        console.log('finished', (Date.now() - t0) / 1000);
+        return socket.emit('message', {
+          status: 'finished',
+          data: response
+        });
+      }, 5000);
     } catch (e) {
       console.error(e);
       return socket.emit('message', {

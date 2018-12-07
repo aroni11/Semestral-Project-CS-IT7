@@ -217,9 +217,7 @@ export class AppComponent {
     if (this.boundaryRectangle) {
       this.boundaryRectangle.removeFrom(this.garMap);
     }
-    this.snackBar.open(message, null, {
-      duration: 5000
-    });
+    this.snackBar.open(message, 'Close');
 
     if (this.subscription !== undefined) {
       this.subscription.unsubscribe();

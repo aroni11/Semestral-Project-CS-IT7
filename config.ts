@@ -20,6 +20,16 @@ export const MONGO_OPTIONS = { useNewUrlParser: true };
 export const SERVER_PORT = 8000;
 
 /*
+ * Socket.io ping interval (how many ms before sending a new ping packet)
+ */
+export const SOCKET_IO_PING_INTERVAL = 25000;
+
+/*
+ * Socket.io ping timeout (how many ms without a pong packet to consider the connection closed)
+ */
+export const SOCKET_IO_PING_TIMEOUT = 100000;
+
+/*
  * A list of supported road types
  */
 export const GAR_ROADS = [
