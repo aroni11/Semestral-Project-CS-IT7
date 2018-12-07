@@ -63,14 +63,14 @@ class EdgeCost {
    * @return EdgeCost Combined cost of all ecs
    */
   static combine(...ecs: EdgeCost[]): EdgeCost {
-    const { costKeys, zero } = EdgeCost;
-    const res: EdgeCost = zero;
+    const res = EdgeCost.zero;
+    let roadCostSum = 0;
     for (const ec of ecs) {
-      for (const key of Object.keys(costKeys)) {
-        res.setCost(key, res.getCost(key) + costKeys[key](ec));
-      }
+      res.setCost('distance', res.getCost('distance') + ec.getCost('distance'));
+      res.setCost('time', res.getCost('time') + ec.getCost('time'));
+      roadCostSum += ec.getCost('road_cost') * ec.getCost('distance');
     }
-    res.setCost('road_cost', res.getCost('road_cost') / res.getCost('distance'));
+    res.setCost('road_cost', roadCostSum / res.getCost('distance'));
     return res;
   }
 
@@ -147,15 +147,16 @@ class EdgeCost {
     if (this.getSum() >= dominatee.getSum()) {
       return false;
     }
-    for (const key in this.costs) {
-      if (this.costs.hasOwnProperty(key)) {
-        const dominatorValue = this.costs[key];
-        const dominateeValue = dominatee.costs[key];
-        if (dominatorValue > dominateeValue) {
-          return false;
-        }
-      }
+    if (this.getCost('distance') >= dominatee.getCost('distance')) {
+      return false;
     }
+    if (this.getCost('time') >= dominatee.getCost('time')) {
+      return false;
+    }
+    // TODO
+    // if (this.getCost('road_cost') >= dominatee.getCost('road_cost')) {
+    //   return false;
+    // }
     return true;
   }
   /**

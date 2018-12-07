@@ -78,10 +78,6 @@ export default function(graph: Graph,
       deletedVertices = [];
     }
 
-    if (alternativePaths.length === 0) {
-      break;
-    }
-
     // sort alternative paths by costs
     alternativePaths.sort((a: Path, b: Path) => Path.compare(a, b));
 
@@ -89,7 +85,13 @@ export default function(graph: Graph,
     while (alternativePaths.length > 0 && paths.some((path) => Path.equal(path, alternativePaths[0]))) {
       alternativePaths.shift();
     }
+
+    if (alternativePaths.length === 0) {
+      break;
+    }
+
     paths.push(alternativePaths[0]);
+    alternativePaths.splice(0, 1);
   }
   return paths.concat(alternativePaths);
 }
