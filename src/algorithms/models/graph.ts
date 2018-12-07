@@ -78,11 +78,11 @@ export default class Graph {
   graphVizString(): string {
     const iterator = this.verticesMap.values();
     let next = iterator.next();
-    let out = 'digraph {';
+    let out = 'digraph world {';
     while (!next.done) {
       for (const edge of next.value.neighbors) {
         const costs = [...next.value.neighbors].find((ec) => ec.vertex === edge.vertex).costs;
-        out += `${next.value.id} -> ${edge.vertex.id} [label = "${costs.getCost('distance')}"]\n`;
+        out += `${next.value.id} -> ${edge.vertex.id} [label = "d:${costs.getCost('distance')},t:${costs.getCost('time')}"]\n`;
       }
       next = iterator.next();
     }

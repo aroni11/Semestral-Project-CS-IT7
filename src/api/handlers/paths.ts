@@ -19,9 +19,6 @@ export async function pathsHandler(req: Request, res: Response) {
   const end = req.body.coordinates[1];
 
   try {
-    const startNode = await Node.findNearestRoad(start);
-    const endNode = await Node.findNearestRoad(end);
-
     if (!(startNode && endNode)) {
       return res.status(422).send('Start and/or end point(s) are too far from the nearest existing node in the database');
     }
@@ -48,7 +45,21 @@ export async function pathsHandler(req: Request, res: Response) {
       edge.vertex.lat
     ]) as Coordinates[]);
 
-    return res.json(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsCoordinates));
+    const pathsNodeIDs = paths.map((path) => path.pathData.map((edge) =>
+      edge.vertex.id
+    ) as number[]);
+
+    const pathsAsSequence = pathsNodeIDs.map(value => value.join('->'));
+
+    console.log(pathsAsSequence.join('\n'));
+
+    const paths2DPoints = paths.map(value =>
+      value.evaluate().getCost('distance') + ',' + value.evaluate().getCost('time')
+    );
+
+    console.log(paths2DPoints.join('\n'));
+
+    return res.json(generateResponse(start, end, pathsCoordinates));
   } catch (e) {
     console.error(e);
     return res.status(503).send(e.message);
@@ -77,8 +88,6 @@ function computeScale(point1: Coordinates, point2: Coordinates, point3: Coordina
 function generateResponse(
   start: Coordinates,
   end: Coordinates,
-  computedStart: Coordinates,
-  computedEnd: Coordinates,
   paths: Coordinates[][]) {
   const startFeature = feature({
       type: 'Point',
@@ -94,20 +103,6 @@ function generateResponse(
     {
       name: 'Original end'
     });
-  const computedStartFeature = feature({
-      type: 'Point',
-      coordinates: computedStart
-    },
-    {
-      name: 'Computed start'
-    });
-  const computedEndFeature = feature({
-      type: 'Point',
-      coordinates: computedEnd
-    },
-    {
-      name: 'Computed end'
-    });
   const pathFeatures = paths.map((path, index) => feature({
       type: 'LineString',
       coordinates: path
@@ -119,8 +114,6 @@ function generateResponse(
   return featureCollection([
     startFeature,
     endFeature,
-    computedStartFeature,
-    computedEndFeature,
     ...pathFeatures
   ]);
 }

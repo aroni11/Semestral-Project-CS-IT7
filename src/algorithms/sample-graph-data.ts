@@ -41,19 +41,43 @@ const ec7 = new EdgeCost();
 const ec8 = new EdgeCost();
 
 ec1.setCost('distance', 1);
-ec2.setCost('distance', 2);
+ec1.setCost('time', 10);
+ec1.setCost('road_cost', 1);
+ec2.setCost('distance', 1);
+ec2.setCost('time', 10);
+ec2.setCost('road_cost', 1);
+
 ec3.setCost('distance', 3);
-ec4.setCost('distance', 4);
-ec5.setCost('distance', 5);
-ec6.setCost('distance', 6);
-ec7.setCost('distance', 7);
-ec8.setCost('distance', 8);
+ec3.setCost('time', 40);
+ec3.setCost('road_cost', 1);
+
+ec4.setCost('distance', 2);
+ec4.setCost('time', 18);
+ec4.setCost('road_cost', 1);
+ec5.setCost('distance', 2);
+ec5.setCost('time', 18);
+ec5.setCost('road_cost', 1);
+
+ec6.setCost('distance', 2);
+ec6.setCost('time', 50);
+ec6.setCost('road_cost', 1);
+
+ec7.setCost('distance', 10);
+ec7.setCost('time', 15);
+ec7.setCost('road_cost', 1);
+ec8.setCost('distance', 10);
+ec8.setCost('time', 15);
+ec8.setCost('road_cost', 1);
+
 
 /*
 Vertex 1
 Neighbor 2:  Cost = 1
 */
 sampleGraph.getVertex(1).addNeighbor(new Edge(sampleGraph.getVertex(2), ec1));
+sampleGraph.getVertex(1).addNeighbor(new Edge(sampleGraph.getVertex(18), ec7));
+sampleGraph.getVertex(1).addNeighbor(new Edge(sampleGraph.getVertex(18), ec6));
+sampleGraph.getVertex(1).addNeighbor(new Edge(sampleGraph.getVertex(21), ec8));
 
 /*
 Vertex 2
@@ -112,6 +136,7 @@ Vertex 8
 Neighbor 7:  Cost = 2
 */
 sampleGraph.getVertex(8).addNeighbor(new Edge(sampleGraph.getVertex(7), ec2));
+sampleGraph.getVertex(8).addNeighbor(new Edge(sampleGraph.getVertex(21), ec7));
 
 /*
 Vertex 9
@@ -120,6 +145,7 @@ Neighbor 13: Cost = 4
 */
 sampleGraph.getVertex(9).addNeighbor(new Edge(sampleGraph.getVertex(10), ec3));
 sampleGraph.getVertex(9).addNeighbor(new Edge(sampleGraph.getVertex(13), ec4));
+sampleGraph.getVertex(9).addNeighbor(new Edge(sampleGraph.getVertex(1), ec8));
 
 /*
 Vertex 10
@@ -154,6 +180,7 @@ Neighbor 13: Cost = 5
 */
 sampleGraph.getVertex(14).addNeighbor(new Edge(sampleGraph.getVertex(3), ec4));
 sampleGraph.getVertex(14).addNeighbor(new Edge(sampleGraph.getVertex(13), ec5));
+sampleGraph.getVertex(14).addNeighbor(new Edge(sampleGraph.getVertex(2), ec4));
 
 /*
 Vertex 15
@@ -170,6 +197,7 @@ Neighbor 17: Cost = 6
 */
 sampleGraph.getVertex(16).addNeighbor(new Edge(sampleGraph.getVertex(15), ec5));
 sampleGraph.getVertex(16).addNeighbor(new Edge(sampleGraph.getVertex(17), ec6));
+sampleGraph.getVertex(16).addNeighbor(new Edge(sampleGraph.getVertex(7), ec6));
 
 /*
 Vertex 17
@@ -204,6 +232,8 @@ Vertex 21
 Neighbor 20: Cost = 8
 */
 sampleGraph.getVertex(21).addNeighbor(new Edge(sampleGraph.getVertex(20), ec8));
+sampleGraph.getVertex(21).addNeighbor(new Edge(sampleGraph.getVertex(1), ec7));
+sampleGraph.getVertex(21).addNeighbor(new Edge(sampleGraph.getVertex(8), ec8));
 
 console.log(graphBuilder(data.nodes.slice(1), data.ways));
 

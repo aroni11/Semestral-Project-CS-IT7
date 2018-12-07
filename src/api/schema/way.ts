@@ -22,7 +22,7 @@ const waySchema = new mongoose.Schema({
   type: { type: String, default: 'way' },
   loc: {
     type: { type: String },
-    nodes: { type: Array, default: [] },
+    nodes: [Number],
     coordinates: []
   },
   osmTimeBucket: Object,
