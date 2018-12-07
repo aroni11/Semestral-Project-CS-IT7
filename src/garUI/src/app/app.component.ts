@@ -93,12 +93,23 @@ export class AppComponent {
     Validators.max(30)
   ]);
   matcher = new MyErrorStateMatcher();
+  costFunctions = [
+    'Square root of time + distance',
+    'Square root of time * distance',
+    'Arithmetic mean',
+    'Geometric mean',
+    'Minimum',
+    'Maximum'
+  ];
 
   togglePick(garPoint: string): void {
     if (this.pickedPoint === garPoint) {
+      this.snackBar.dismiss();
       this.pickedPoint = undefined;
     } else {
       this.pickedPoint = garPoint;
+      this.displayedContent = 'map';
+      this.snackBar.open('Click on the map to set the point');
     }
     this.isHandset$.subscribe(
       (opened) => {
@@ -107,7 +118,6 @@ export class AppComponent {
         }
       }
     );
-    this.snackBar.open('Click on the map to set the point');
   }
 
   onMapReady(garMap: Map): void {

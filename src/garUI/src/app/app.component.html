@@ -40,7 +40,7 @@
       </div>
     </div>
     <mat-divider></mat-divider>
-    <div class="credits">Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+    <div class="credits">Icons made by <a href="https://www.flaticon.com/authors/cursor-creative" title="Cursor Creative">Cursor Creative</a> and <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">
@@ -64,7 +64,7 @@
         <mat-icon class="toolbar-icon">settings</mat-icon>
       </button>
     </mat-toolbar>
-    <div [class.hidden]="displayedContent !== 'map'"
+    <div *ngIf="displayedContent === 'map'"
          id="map"
          leaflet
          (leafletMapReady)="onMapReady($event)"
@@ -81,32 +81,146 @@
       [bufferValue]="0">
     </mat-progress-bar>
     <button class="mat-fab fab" *ngIf="start && end && topKFormControl.valid && simplificationFormControl.valid && displayedContent === 'map'" (click)="generatePaths()"><img src="assets/destination.svg"></button>
-    <app-skyline [class.hidden]="displayedContent !== 'skyline'"></app-skyline>
-    <div [class.hidden]="displayedContent !== 'settings'" class="sidenav-wrap">
-      <form>
-        <mat-form-field>
-          <input matInput placeholder="Simplification rounds" [formControl]="simplificationFormControl"
-                 [errorStateMatcher]="matcher" type="number">
-          <mat-hint># of graph simplifications</mat-hint>
-          <mat-error *ngIf="(simplificationFormControl.hasError('min') || simplificationFormControl.hasError('max')) && !simplificationFormControl.hasError('required')">
-            Enter a number between 0 and 10
-          </mat-error>
-          <mat-error *ngIf="simplificationFormControl.hasError('required')">
-            This field is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput placeholder="Top K" [formControl]="topKFormControl"
-                 [errorStateMatcher]="matcher" type="number">
-          <mat-hint># of iterations of Yen's alg.</mat-hint>
-          <mat-error *ngIf="(topKFormControl.hasError('min') || topKFormControl.hasError('max')) && !topKFormControl.hasError('required')">
-            Enter a number between 0 and 30
-          </mat-error>
-          <mat-error *ngIf="topKFormControl.hasError('required')">
-            This field is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
-      </form>
+    <app-skyline *ngIf="displayedContent === 'skyline'"></app-skyline>
+    <div *ngIf="displayedContent === 'settings'">
+      <mat-tab-group mat-stretch-tabs>
+        <mat-tab label="Start & End">
+          <div class="settings">
+            <mat-card>
+              <mat-card-header>
+                <img mat-card-avatar src="assets/map2.svg">
+                <mat-card-title>Nearest node limit</mat-card-title>
+                <mat-card-subtitle>Max distance from existing road</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <form>
+                  <mat-form-field>
+                    <input matInput placeholder="Distance in kilometers" [formControl]="topKFormControl"
+                           [errorStateMatcher]="matcher" type="number">
+                    <mat-error *ngIf="(topKFormControl.hasError('min') || topKFormControl.hasError('max')) && !topKFormControl.hasError('required')">
+                      Enter a number between 0 and 10
+                    </mat-error>
+                    <mat-error *ngIf="topKFormControl.hasError('required')">
+                      This field is <strong>required</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </form>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-header>
+                <img mat-card-avatar src="assets/treasure-map.svg">
+                <mat-card-title>MBR margin</mat-card-title>
+                <mat-card-subtitle>Minimal boundary rectangle's margin</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <form>
+                  <mat-form-field>
+                    <input matInput placeholder="Distance in kilometers" [formControl]="topKFormControl"
+                           [errorStateMatcher]="matcher" type="number">
+                    <mat-error *ngIf="(topKFormControl.hasError('min') || topKFormControl.hasError('max')) && !topKFormControl.hasError('required')">
+                      Enter a number between 0 and 10
+                    </mat-error>
+                    <mat-error *ngIf="topKFormControl.hasError('required')">
+                      This field is <strong>required</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </form>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+        <mat-tab label="Pathfinding">
+          <div class="settings">
+            <mat-card>
+              <mat-card-header>
+                <img mat-card-avatar src="assets/map.svg">
+                <mat-card-title>
+                  Graph simplifying
+                </mat-card-title>
+                <mat-card-subtitle># of graph simplifications</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <form>
+                  <mat-form-field>
+                    <input matInput placeholder="Simplification rounds" [formControl]="simplificationFormControl"
+                           [errorStateMatcher]="matcher" type="number">
+                    <mat-error *ngIf="(simplificationFormControl.hasError('min') || simplificationFormControl.hasError('max')) && !simplificationFormControl.hasError('required')">
+                      Enter a number between 0 and 10
+                    </mat-error>
+                    <mat-error *ngIf="simplificationFormControl.hasError('required')">
+                      This field is <strong>required</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </form>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-header>
+                <img mat-card-avatar src="assets/route.svg">
+                <mat-card-title>TopK rounds</mat-card-title>
+                <mat-card-subtitle># of iterations of Yen's alg.</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <form>
+                  <mat-form-field>
+                    <input matInput placeholder="Top K" [formControl]="topKFormControl"
+                           [errorStateMatcher]="matcher" type="number">
+                    <mat-error *ngIf="(topKFormControl.hasError('min') || topKFormControl.hasError('max')) && !topKFormControl.hasError('required')">
+                      Enter a number between 0 and 30
+                    </mat-error>
+                    <mat-error *ngIf="topKFormControl.hasError('required')">
+                      This field is <strong>required</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </form>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-header>
+                <img mat-card-avatar src="assets/panel.svg">
+                <mat-card-title>Cost function</mat-card-title>
+                <mat-card-subtitle>Determining edge's cost</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-form-field>
+                  <mat-select placeholder="Cost function" color="accent">
+                    <mat-option *ngFor="let costFunction of costFunctions" [value]="costFunctions[2]">
+                      {{costFunction}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </mat-card-content>
+            </mat-card>
+            <!--<mat-card>-->
+            <!--<mat-card-header>-->
+            <!--<img mat-card-avatar src="assets/route2.svg">-->
+            <!--<mat-card-title>Keep Yen's paths</mat-card-title>-->
+            <!--<mat-card-subtitle>Modification of Yen's alg.</mat-card-subtitle>-->
+            <!--</mat-card-header>-->
+            <!--<mat-card-content>-->
+            <!--Do not discard computed alternative paths in Yen's algorithm.-->
+            <!--<mat-checkbox>Keep candidate paths</mat-checkbox>-->
+            <!--</mat-card-content>-->
+            <!--</mat-card>-->
+          </div>
+        </mat-tab>
+        <mat-tab label="Postprocessing">
+          <div class="settings">
+            <mat-card>
+              <mat-card-header>
+                <img mat-card-avatar src="assets/map3.svg">
+                <mat-card-title>Apply skyline</mat-card-title>
+                <mat-card-subtitle>Use the syline algorithm</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                Keep only paths that are not dominated by any other path.
+                <mat-checkbox>Apply skyline</mat-checkbox>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
