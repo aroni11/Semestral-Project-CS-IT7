@@ -119,8 +119,3 @@ mat-divider {
 mat-error {
   color: darkorange;
 }
-
-app-skyline {
-  width: 100px;
-  height: 100%;
-}

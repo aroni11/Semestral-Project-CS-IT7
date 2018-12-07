@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { geoJSON, icon, latLng, Map, marker, point, tileLayer } from 'leaflet';
 import { ErrorStateMatcher, MatSidenav, MatSnackBar } from '@angular/material';
@@ -62,6 +62,7 @@ export class AppComponent {
     '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff'];
   currentColor = 0;
 
+  subscription: Subscription;
   loading = -1;
 
   // Layers control object with our two base layers and the three overlay layers
@@ -106,9 +107,7 @@ export class AppComponent {
         }
       }
     );
-    this.snackBar.open('Click on the map to set the point', null, {
-      duration: 5000
-    });
+    this.snackBar.open('Click on the map to set the point');
   }
 
   onMapReady(garMap: Map) {
@@ -140,17 +139,16 @@ export class AppComponent {
 
   generatePaths(): void {
     this.loading = 0;
-    this.snackBar.open('Finding the nearest road nodes...', null, {
-      duration: 5000
-    });
+    this.generationMessage('Finding the nearest road nodes...');
     this.clearComputedPoints();
-    const subscription = this.pathsService.getPaths([
-      this.start.getLatLng().lng,
-      this.start.getLatLng().lat
-    ], [
-      this.end.getLatLng().lng,
-      this.end.getLatLng().lat
-    ],
+
+    this.subscription = this.pathsService.getPaths([
+        this.start.getLatLng().lng,
+        this.start.getLatLng().lat
+      ], [
+        this.end.getLatLng().lng,
+        this.end.getLatLng().lat
+      ],
       this.simplificationFormControl.value,
       this.topKFormControl.value
     ).subscribe((chunk) => {
@@ -160,62 +158,72 @@ export class AppComponent {
 
         this.loading += this.addProgress(status);
 
-        if (status === 'error') {
-          console.log('Error caught!', data);
-          this.loading = -1;
-          if (this.boundaryRectangle) {
-            this.boundaryRectangle.removeFrom(this.garMap);
-          }
-          this.snackBar.open(`An error occurred: ${data}`, null, {
-            duration: 5000
-          });
-          subscription.unsubscribe();
-        } else if (status === 'foundNearestRoads') {
-          this.addPoints([data.computedStart, data.computedEnd]);
-        } else if (status === 'computedBoundaryRectangle') {
-          this.addPolygon(data);
-          this.garMap.fitBounds(this.boundaryRectangle.getBounds());
-        } else if (status === 'foundTopK') {
-          this.skylineData = data;
-        } else if (status === 'computedSkyline') {
-          // console.log(data);
-        } else if (status === 'finished') {
-          this.loading = -1;
-          subscription.unsubscribe();
-          const paths = JSON.parse(data);
-
-          const points = paths.features.filter((feature) => feature.geometry.type === 'Point').slice(0, 2);
-          const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString').slice(0, 20);
-
-          this.clearMapData();
-
-          this.addPoints(points);
-
-          this.addPaths(altPaths);
-
-          for (const route of this.routes.reverse()) { // make sure #0 is on top
-            route.addTo(this.garMap);
-          }
-
-          this.routesProperties = altPaths.map((path) => path.properties);
-
-          this.garMap.fitBounds(this.routes[0].getBounds(), { // recenter the map
-            padding: point(24, 24),
-            animate: true
-          });
+        switch (status) {
+          case 'error':
+            this.cancelGenerating(`An error occurred: ${data}`);
+            break;
+          case 'foundNearestRoads':
+            this.addPoints([data.computedStart, data.computedEnd]);
+            break;
+          case 'computedBoundaryRectangle':
+            this.addPolygon(data);
+            this.garMap.fitBounds(this.boundaryRectangle.getBounds());
+            break;
+          case 'foundTopK':
+            this.skylineData = data;
+            break;
+          case 'computedSkyline':
+            // console.log(data);
+            break;
+          case 'finished':
+            this.finishGeneration(data);
+            break;
         }
       },
       (error) => {
-        console.log('Error caught!', error);
-        this.loading = -1;
-        if (this.boundaryRectangle) {
-          this.boundaryRectangle.removeFrom(this.garMap);
-        }
-        this.snackBar.open(`An error occurred: ${error.message}`, null, {
-          duration: 5000
-        });
-        subscription.unsubscribe();
+        this.cancelGenerating(`An error occurred: ${error.message}`);
       });
+  }
+
+  finishGeneration(data): void {
+    this.loading = -1;
+    this.subscription.unsubscribe();
+    const paths = JSON.parse(data);
+
+    const points = paths.features.filter((feature) => feature.geometry.type === 'Point').slice(0, 2);
+    const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString').slice(0, 20);
+
+    this.clearMapData();
+
+    this.addPoints(points);
+
+    this.addPaths(altPaths);
+
+    for (const route of this.routes.reverse()) { // make sure #0 is on top
+      route.addTo(this.garMap);
+    }
+
+    this.routesProperties = altPaths.map((path) => path.properties);
+
+    this.garMap.fitBounds(this.routes[0].getBounds(), { // recenter the map
+      padding: point(24, 24),
+      animate: true
+    });
+  }
+
+  cancelGenerating(message: string = 'Path generation stopped'): void {
+    console.log(message);
+    this.loading = -1;
+    if (this.boundaryRectangle) {
+      this.boundaryRectangle.removeFrom(this.garMap);
+    }
+    this.snackBar.open(message, null, {
+      duration: 5000
+    });
+
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+    }
   }
 
   pickColor(): string {
@@ -307,34 +315,22 @@ export class AppComponent {
   addProgress(step: string): number {
     switch (step) {
       case 'foundNearestRoads':
-        this.snackBar.open('Computing the boundary rectangle...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Computing the boundary rectangle...');
         return 20;
       case 'computedBoundaryRectangle':
-        this.snackBar.open('Finding all roads within the boundary rectangle...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Finding all roads within the boundary rectangle...');
         return 5;
       case 'foundRoadsWithin':
-        this.snackBar.open('Building the graph...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Building the graph...');
         return 40;
       case 'builtGraph':
-        this.snackBar.open('Simplifying the graph...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Simplifying the graph...');
         return 25;
       case 'simplifiedGraph':
-        this.snackBar.open('Finding the top K paths...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Finding the top K paths...');
         return 5;
       case 'foundTopK':
-        this.snackBar.open('Computing the skyline...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Computing the skyline...');
         return 10;
       case 'computedSkyline':
         this.snackBar.open('Done!', null, {
@@ -344,6 +340,17 @@ export class AppComponent {
       default:
         return 0;
     }
+  }
+
+  generationMessage(message: string) {
+    this.snackBar
+      .open(message, 'Cancel')
+      .afterDismissed()
+      .subscribe(info => {
+        if (info.dismissedByAction === true) {
+          this.cancelGenerating();
+        }
+      });
   }
 }
 
