@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { geoJSON, icon, latLng, Map, marker, point, tileLayer } from 'leaflet';
+import { GeoJSON, geoJSON, icon, latLng, LeafletMouseEvent, Map, Marker, marker, point, Polygon, tileLayer } from 'leaflet';
 import { ErrorStateMatcher, MatSidenav, MatSnackBar } from '@angular/material';
 import { PathsService } from './paths.service';
 import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
@@ -31,8 +31,8 @@ export class AppComponent {
 
   displayedContent = 'map';
 
-  garMap;
-  pickedPoint;
+  garMap: Map;
+  pickedPoint: string;
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -49,11 +49,11 @@ export class AppComponent {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   });
 
-  start;
-  startComputed;
-  end;
-  endComputed;
-  boundaryRectangle;
+  start: Marker;
+  startComputed: Marker;
+  end: Marker;
+  endComputed: Marker;
+  boundaryRectangle: GeoJSON<Polygon>;
   routes = [];
 
   skylineData = [];
@@ -110,11 +110,11 @@ export class AppComponent {
     this.snackBar.open('Click on the map to set the point');
   }
 
-  onMapReady(garMap: Map) {
+  onMapReady(garMap: Map): void {
     this.garMap = garMap;
   }
 
-  mapClick(e) {
+  mapClick(e: LeafletMouseEvent): void {
     this.snackBar.dismiss();
     if (this.pickedPoint === 'start' && !this.start) {
       this.start = createMarker(e.latlng, 'green');
@@ -132,7 +132,7 @@ export class AppComponent {
     this.pickedPoint = undefined;
   }
 
-  deletePoint(garPoint, name: string): void {
+  deletePoint(garPoint: Marker, name: string): void {
     garPoint.removeFrom(this.garMap);
     delete this.layersControl.overlays[name];
   }
@@ -185,7 +185,7 @@ export class AppComponent {
       });
   }
 
-  finishGeneration(data): void {
+  finishGeneration(data: string): void {
     this.loading = -1;
     this.subscription.unsubscribe();
     const paths = JSON.parse(data);
@@ -230,16 +230,16 @@ export class AppComponent {
     return this.currentColor + 1 === this.palette.length ? this.palette[this.currentColor] : this.palette[this.currentColor++];
   }
 
-  setPoint(p, name: string): void {
+  setPoint(mapPoint: Marker, name: string): any {
     switch (name) {
       case 'Original start':
-        return this.start = p;
+        return this.start = mapPoint;
       case 'Original end':
-        return this.end = p;
+        return this.end = mapPoint;
       case 'Computed start':
-        return this.startComputed = p;
+        return this.startComputed = mapPoint;
       case 'Computed end':
-        return this.endComputed = p;
+        return this.endComputed = mapPoint;
       default:
         return;
     }
@@ -342,7 +342,7 @@ export class AppComponent {
     }
   }
 
-  generationMessage(message: string) {
+  generationMessage(message: string): void {
     this.snackBar
       .open(message, 'Cancel')
       .afterDismissed()
@@ -354,7 +354,7 @@ export class AppComponent {
   }
 }
 
-function createMarker(latlng, iconType: string, drag: boolean = true) {
+function createMarker(latlng, iconType: string, drag: boolean = true): Marker {
   let markerIcon: string;
   switch (iconType) {
     case 'red':
