@@ -62,9 +62,9 @@ export const SIMPLIFICATION_ROUNDS = 5;
 export const TOP_K_PATHS = 5;
 
 /*
- * Maximum distance for finding the nearest node in meters
+ * Maximum distance for finding the nearest node in kilometers
  */
-export const MAX_NEAREST_DISTANCE = 500;
+export const MAX_NEAREST_DISTANCE = 1;
 
 /*
  * Amount of kilometers added to start&end nodes boundary rectangle

@@ -67,8 +67,8 @@ export default class Graph {
     this.verticesMap.delete(id);
   }
 
-  topK(start: number, end: number, pathFinder: PathFinder, costsFunction: CostFunction, k: number): Path[] {
-    return yen(this, start, end, pathFinder, costsFunction, k);
+  topK(start: number, end: number, pathFinder: PathFinder, costsFunction: CostFunction, k: number, keepCandidates?: boolean): Path[] {
+    return yen(this, start, end, pathFinder, costsFunction, k, keepCandidates);
   }
 
   /**

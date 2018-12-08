@@ -3,17 +3,10 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { GeoJSON, geoJSON, icon, latLng, LeafletMouseEvent, Map, Marker, marker, point, Polygon, tileLayer } from 'leaflet';
-import { ErrorStateMatcher, MatSidenav, MatSnackBar } from '@angular/material';
+import { MatSidenav, MatSnackBar } from '@angular/material';
 import { PathsService } from './paths.service';
-import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { SkylineComponent } from './skyline/skyline.component';
-
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    const isSubmitted = form && form.submitted;
-    return control && control.invalid && (control.dirty || control.touched || isSubmitted);
-  }
-}
+import { SettingsComponent } from './settings/settings.component';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +16,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 export class AppComponent {
   @ViewChild('drawer') sidebar: MatSidenav;
   @ViewChild(SkylineComponent) private skyline: SkylineComponent;
+  @ViewChild(SettingsComponent) private settings: SettingsComponent;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
@@ -82,26 +76,6 @@ export class AppComponent {
     center: latLng([ 57.0366, 9.9223 ])
   };
 
-  simplificationFormControl = new FormControl(5, [
-    Validators.required,
-    Validators.min(0),
-    Validators.max(10)
-  ]);
-  topKFormControl = new FormControl(5, [
-    Validators.required,
-    Validators.min(0),
-    Validators.max(30)
-  ]);
-  matcher = new MyErrorStateMatcher();
-  costFunctions = [
-    'Square root of time + distance',
-    'Square root of time * distance',
-    'Arithmetic mean',
-    'Geometric mean',
-    'Minimum',
-    'Maximum'
-  ];
-
   togglePick(garPoint: string): void {
     if (this.pickedPoint === garPoint) {
       this.snackBar.dismiss();
@@ -159,8 +133,13 @@ export class AppComponent {
         this.end.getLatLng().lng,
         this.end.getLatLng().lat
       ],
-      this.simplificationFormControl.value,
-      this.topKFormControl.value
+      this.settings.simplificationFormControl.value,
+      this.settings.topKFormControl.value,
+      this.settings.maxNearestFormControl.value,
+      this.settings.mbrMarginFormControl.value,
+      this.settings.selectedCostFunction,
+      this.settings.skyline,
+      this.settings.yenKeep
     ).subscribe((chunk) => {
         const nextObject = chunk as unknown as object;
         const status = nextObject['status'];
@@ -359,6 +338,15 @@ export class AppComponent {
           this.cancelGenerating();
         }
       });
+  }
+
+  changeContent(name: string): void {
+    this.displayedContent = name;
+    if (name === 'skyline') {
+      this.skyline.drawSkyline(this.skylineData);
+    }
+    window.dispatchEvent(new Event('resize'));
+    this.garMap.invalidateSize();
   }
 }
 

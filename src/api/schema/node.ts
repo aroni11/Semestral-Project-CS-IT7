@@ -18,8 +18,8 @@ export interface INode extends mongoose.Document {
 }
 
 export interface INodeModel extends Model<INode> {
-  findNearest(coordinates: Coordinates): Promise<INode>;
-  findNearestRoad(coordinates: Coordinates): Promise<INode>;
+  findNearest(coordinates: Coordinates, maxNearest?: number): Promise<INode>;
+  findNearestRoad(coordinates: Coordinates, maxNearest?: number): Promise<INode>;
   findWithin(polygon: Coordinates[]): Promise<INode[]>;
   findRoadsWithin(polygon: Coordinates[]): Promise<IRoads>;
 }
@@ -54,7 +54,7 @@ nodeSchema.virtual('ways', {
   foreignField: 'loc.nodes'
 });
 
-nodeSchema.statics.findNearest = function(coordinates: Coordinates): Promise<INode> {
+nodeSchema.statics.findNearest = function(coordinates: Coordinates, maxNearest: number = MAX_NEAREST_DISTANCE): Promise<INode> {
   return this.find({
     loc: {
       $nearSphere: {
@@ -62,17 +62,17 @@ nodeSchema.statics.findNearest = function(coordinates: Coordinates): Promise<INo
           type: 'Point',
           coordinates
         },
-        $maxDistance: MAX_NEAREST_DISTANCE
+        $maxDistance: maxNearest * 1000
       }
     }
   });
 };
 
-nodeSchema.statics.findNearestRoad = async function(coordinates: Coordinates): Promise<INode> {
-  const nearestNodes = await this.findNearest(coordinates).populate('ways', 'tags.highway').lean().exec();
+nodeSchema.statics.findNearestRoad = async function(coordinates: Coordinates, maxNearest: number = MAX_NEAREST_DISTANCE): Promise<INode> {
+  const nearestNodes = await this.findNearest(coordinates, maxNearest).populate('ways', 'tags.highway').lean().exec();
 
   if (nearestNodes.length === 0) {
-    throw new Error(`No road found in the diameter of ${MAX_NEAREST_DISTANCE} meters!`);
+    throw new Error(`No road found in the diameter of ${maxNearest} meters!`);
   }
   return nearestNodes.find(roadNodesOnly);
 };

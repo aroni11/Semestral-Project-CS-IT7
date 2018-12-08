@@ -1,0 +1,11 @@
+.settings {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap
+}
+
+.settings mat-card {
+  display: inline-block;
+  max-width: 15em;
+  margin: 0.5em;
+}

@@ -33,7 +33,7 @@
 }
 
 #map {
-  height: 92%;
+  height: calc(100% - 64px);
   padding: 0;
 }
 
@@ -118,15 +118,4 @@ mat-divider {
 
 mat-error {
   color: darkorange;
-}
-
-.settings {
-  /*display: flex;*/
-  /*align-items: stretch;*/
-}
-
-.settings mat-card {
-  display: inline-block;
-  max-width: 15em;
-  margin: 0.5em;
 }

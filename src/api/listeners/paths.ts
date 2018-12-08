@@ -3,8 +3,9 @@ import {feature, Feature, featureCollection, lineString, Point, Polygon} from '@
 import {FeatureCollection} from '@turf/helpers/lib/geojson';
 import lineToPolygon from '@turf/line-to-polygon';
 import transformScale from '@turf/transform-scale';
-import {Coordinates, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
+import {Coordinates, CostFunction, MAX_NEAREST_DISTANCE, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
+import reducers from '../../algorithms/helpers/cost-reducers';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import Path from '../../algorithms/pathfinders/path';
 import {skyline} from '../../algorithms/Skyline/SkylineFilter';
@@ -32,13 +33,18 @@ export function pathsListener(socket: any) {
 
     const simplificationRounds = data.simplificationRounds !== undefined ? data.simplificationRounds : SIMPLIFICATION_ROUNDS;
     const topK = data.topK !== undefined ? data.topK : TOP_K_PATHS;
+    const maxNearest = data.maxNearest !== undefined ? data.maxNearest : MAX_NEAREST_DISTANCE;
+    const mbrMargin = data.mbrMargin !== undefined ? data.mbrMargin : PATH_POLYGON_MARGIN;
+    const costFunction = getCostFunction(data.costFunction);
+    const applySkyline = data.skyline !== undefined ? data.skyline : true;
+    const yenKeep = data.yenKeep !== undefined ? data.yenKeep : true;
 
     const start = data.coordinates[0];
     const end = data.coordinates[1];
 
     try {
-      const startNode = await Node.findNearestRoad(start);
-      const endNode = await Node.findNearestRoad(end);
+      const startNode = await Node.findNearestRoad(start, maxNearest);
+      const endNode = await Node.findNearestRoad(end, maxNearest);
 
       if (!(startNode && endNode)) {
         return socket.emit('message', {
@@ -55,7 +61,7 @@ export function pathsListener(socket: any) {
         }
       });
 
-      const boundaryRectangle = createBoundaryRectangle(startNode.loc.coordinates, endNode.loc.coordinates);
+      const boundaryRectangle = createBoundaryRectangle(startNode.loc.coordinates, endNode.loc.coordinates, mbrMargin);
       console.log('computedBoundaryRectangle', (Date.now() - t0) / 1000);
       socket.emit('message', {
         status: 'computedBoundaryRectangle',
@@ -89,14 +95,14 @@ export function pathsListener(socket: any) {
         status: 'simplifiedGraph'
       });
       setTimeout(() => { // TODO simplifiedGraph status not sent otherwise
-        const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, topK);
+        const paths = simplified.topK(startNode._id, endNode._id, dijkstra, costFunction, topK, yenKeep);
         console.log('foundTopK', (Date.now() - t0) / 1000);
         socket.emit('message', {
           status: 'foundTopK',
           data: paths.map((path) => path.evaluate().getCosts)
         });
 
-        const pathsSkyline = skyline(paths);
+        const pathsSkyline = applySkyline ? skyline(paths) : paths;
         console.log('computedSkyline', (Date.now() - t0) / 1000);
         socket.emit('message', {
           status: 'computedSkyline',
@@ -120,7 +126,7 @@ export function pathsListener(socket: any) {
   });
 }
 
-function createBoundaryRectangle(point1: Coordinates, point2: Coordinates): Feature<Polygon> {
+function createBoundaryRectangle(point1: Coordinates, point2: Coordinates, mbrMargin: number): Feature<Polygon> {
   const corner1 = point1;
   const corner2 = [point1[0], point2[1]] as Coordinates;
   const corner3 = point2;
@@ -128,15 +134,34 @@ function createBoundaryRectangle(point1: Coordinates, point2: Coordinates): Feat
   const line = lineString([corner1, corner2, corner3, corner4]);
 
   const mbr = lineToPolygon(line, {autoComplete: true});
-  return transformScale(mbr, computeScale(corner1, corner2, corner3));
+  return transformScale(mbr, computeScale(corner1, corner2, corner3, mbrMargin));
 }
 
-function computeScale(point1: Coordinates, point2: Coordinates, point3: Coordinates): number {
+function computeScale(point1: Coordinates, point2: Coordinates, point3: Coordinates, mbrMargin: number): number {
   const edge1 = distance(point1, point2);
   const edge2 = distance(point2, point3);
   const shorterEdge = edge1 < edge2 ? edge1 : edge2;
 
-  return (shorterEdge + PATH_POLYGON_MARGIN) / shorterEdge;
+  return (shorterEdge + mbrMargin) / shorterEdge;
+}
+
+function getCostFunction(name: string): CostFunction {
+  switch (name) {
+    case 'Sqrt of time + distance':
+      return reducers.sqrtTimePlusDistance;
+    case 'Sqrt of time * distance':
+      return reducers.sqrtTimeByDistance;
+    case 'Arithmetic mean':
+      return reducers.arithmeticMean;
+    case 'Geometric mean':
+      return reducers.geometricMean;
+    case 'Minimum':
+      return reducers.minCost;
+    case 'Maximum':
+      return reducers.maxCost;
+    default:
+      return undefined;
+  }
 }
 
 function generateResponse(
