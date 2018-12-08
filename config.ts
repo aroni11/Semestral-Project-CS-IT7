@@ -20,6 +20,16 @@ export const MONGO_OPTIONS = { useNewUrlParser: true };
 export const SERVER_PORT = 8000;
 
 /*
+ * Socket.io ping interval (how many ms before sending a new ping packet)
+ */
+export const SOCKET_IO_PING_INTERVAL = 25000;
+
+/*
+ * Socket.io ping timeout (how many ms without a pong packet to consider the connection closed)
+ */
+export const SOCKET_IO_PING_TIMEOUT = 100000;
+
+/*
  * A list of supported road types
  */
 export const GAR_ROADS = [
@@ -52,14 +62,14 @@ export const SIMPLIFICATION_ROUNDS = 5;
 export const TOP_K_PATHS = 5;
 
 /*
- * Maximum distance for finding the nearest node in meters
+ * Maximum distance for finding the nearest node in kilometers
  */
-export const MAX_NEAREST_DISTANCE = 500;
+export const MAX_NEAREST_DISTANCE = 1;
 
 /*
  * Amount of kilometers added to start&end nodes boundary rectangle
  */
-export const PATH_POLYGON_MARGIN = 5;
+export const PATH_POLYGON_MARGIN = 2;
 
 /*
  * Define the structure of coordinates we use throughout the application

@@ -4,7 +4,7 @@
                [mode]="(isHandset$ | async) ? 'over' : 'side'"
                [opened]="!(isHandset$ | async)">
     <div class="sidenav-wrap">
-      <h2 class="sidenav-title">Start point</h2>
+      <h3 class="sidenav-title">Start point</h3>
       <div class="point-coords" *ngIf="start">[{{start.getLatLng().lat}}, {{start.getLatLng().lng}}]</div>
       <div class="point-coords point-coords-warn" *ngIf="!start">Start point not set!</div>
       <button class="marker-button" *ngIf="!start && pickedPoint !== 'start'" mat-stroked-button color="warn" (click)="togglePick('start')"><i class="material-icons">pin_drop</i></button>
@@ -13,7 +13,7 @@
       <button class="marker-button" *ngIf="start" mat-stroked-button color="warn" (click)="deletePoint('start')"><i class="material-icons">delete</i></button>
     </div>
     <div class="sidenav-wrap">
-      <h2 class="sidenav-title">End point</h2>
+      <h3 class="sidenav-title">End point</h3>
       <div class="point-coords" *ngIf="end">[{{end.getLatLng().lat}}, {{end.getLatLng().lng}}]</div>
       <div class="point-coords point-coords-warn" *ngIf="!end">Start point not set!</div>
       <button class="marker-button" *ngIf="!end && pickedPoint !== 'end'" mat-stroked-button color="warn" (click)="togglePick('end')"><i class="material-icons">pin_drop</i></button>
@@ -31,14 +31,16 @@
     </div>
     <mat-divider *ngIf="routes.length > 0 && loading === -1"></mat-divider>
     <div *ngIf="routes.length > 0 && loading === -1" class="sidenav-wrap sidenav-route-info">
-      <h2 class="sidenav-title"><span matBadge="{{routes.length > 20 ? '20+' : routes.length}}">Routes</span></h2>
-      <div *ngFor="let routeProp of routesProperties">
-        <h3>{{routeProp.name}}</h3>
-        <p class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</p>
+      <h2 class="sidenav-title"><span matBadge="{{routes.length >= 20 ? '20+' : routes.length}}">Routes</span></h2>
+      <div *ngFor="let routeProp of routesProperties; let i = index">
+        <p>
+          <span class="sidenav-route-name">#{{i + 1}}</span>
+          <span class="sidenav-route-costs">{{routeProp.costs.distance.toFixed(3)}}km/{{routeProp.costs.time.toFixed(3)}}h</span>
+        </p>
       </div>
     </div>
     <mat-divider></mat-divider>
-    <div class="credits">Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+    <div class="credits">Icons made by <a href="https://www.flaticon.com/authors/cursor-creative" title="Cursor Creative">Cursor Creative</a> and <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">
@@ -50,9 +52,20 @@
         *ngIf="isHandset$ | async">
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
-      <span>Generating (Good) Alternative Routes</span>
+      <span>{{(isHandset$ | async ) ? 'GAR' : 'Generating (Good) Alternative Routes'}}</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-icon-button (click)="changeContent('map')">
+        <mat-icon class="toolbar-icon">map</mat-icon>
+      </button>
+      <button mat-icon-button (click)="changeContent('skyline')" [disabled]="skylineData.length === 0">
+        <mat-icon class="toolbar-icon">timeline</mat-icon>
+      </button>
+      <button mat-icon-button (click)="changeContent('settings')">
+        <mat-icon class="toolbar-icon">settings</mat-icon>
+      </button>
     </mat-toolbar>
-    <div id="map"
+    <div [class.hidden]="displayedContent !== 'map'"
+         id="map"
          leaflet
          (leafletMapReady)="onMapReady($event)"
          (leafletClick)="mapClick($event)"
@@ -67,7 +80,9 @@
       [value]="loading"
       [bufferValue]="0">
     </mat-progress-bar>
-    <button class="mat-fab fab" *ngIf="start && end" (click)="generatePaths()"><img src="assets/destination.svg"></button>
+    <button class="mat-fab fab" *ngIf="start && end && settings.valid() && displayedContent === 'map'" (click)="generatePaths()"><img src="assets/destination.svg"></button>
+    <app-skyline [class.hidden]="displayedContent !== 'skyline'"></app-skyline>
+    <app-settings [class.hidden]="displayedContent !== 'settings'"></app-settings>
   </mat-sidenav-content>
 </mat-sidenav-container>
 

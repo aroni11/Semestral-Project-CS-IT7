@@ -12,7 +12,7 @@ export class WebsocketService {
   connect(): Subject<MessageEvent> {
     // If you aren't familiar with environment variables then
     // you can hard code `environment.ws_url` as `http://localhost:5000`
-    this.socket = io('http://localhost:8000/socket/paths');
+    this.socket = io('http://localhost:8000/socket/paths', {timeout: 100000});
 
     // We define our observable which will observe any incoming messages
     // from our socket.io server.
@@ -23,6 +23,18 @@ export class WebsocketService {
 
       this.socket.on('error', (e) => {
         myObserver.error(e);
+      });
+
+      this.socket.on('connect_error', (e) => {
+        myObserver.error(e);
+      });
+
+      this.socket.on('connect_timeout', (e) => {
+        myObserver.error(new Error(e));
+      });
+
+      this.socket.on('disconnect', (e) => {
+        myObserver.error(new Error(e));
       });
 
       return () => {

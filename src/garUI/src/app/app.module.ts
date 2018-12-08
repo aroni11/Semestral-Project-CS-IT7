@@ -12,16 +12,27 @@ import {
   MatListModule,
   MatSnackBarModule,
   MatProgressBarModule,
-  MatBadgeModule
+  MatBadgeModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatTabsModule,
+  MatCardModule,
+  MatSelectModule,
+  MatCheckboxModule
 } from '@angular/material';
 import { LayoutModule } from '@angular/cdk/layout';
 import { PathsService } from './paths.service';
 import { HttpClientModule } from '@angular/common/http';
 import { WebsocketService } from './websocket-service.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SkylineComponent } from './skyline/skyline.component';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SkylineComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,
@@ -30,13 +41,21 @@ import { WebsocketService } from './websocket-service.service';
     BrowserAnimationsModule,
     MatToolbarModule,
     LayoutModule,
+    FormsModule,
+    ReactiveFormsModule,
     MatButtonModule,
     MatSidenavModule,
     MatIconModule,
     MatListModule,
     MatSnackBarModule,
     MatProgressBarModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTabsModule,
+    MatCardModule,
+    MatSelectModule,
+    MatCheckboxModule
   ],
   providers: [
     PathsService,

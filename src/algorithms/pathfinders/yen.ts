@@ -9,7 +9,8 @@ export default function(graph: Graph,
                         end: number,
                         pathFinder: PathFinder,
                         costsFunction: CostFunction,
-                        topK: number): Path[] {
+                        topK: number,
+                        keepCandidates: boolean = true): Path[] {
   const paths: Path[] = [pathFinder(start, end, graph, costsFunction)];
   const alternativePaths: Path[] = [];
   let deletedEdges: Array<[number, Edge]> = [];
@@ -78,10 +79,6 @@ export default function(graph: Graph,
       deletedVertices = [];
     }
 
-    if (alternativePaths.length === 0) {
-      break;
-    }
-
     // sort alternative paths by costs
     alternativePaths.sort((a: Path, b: Path) => Path.compare(a, b));
 
@@ -89,7 +86,13 @@ export default function(graph: Graph,
     while (alternativePaths.length > 0 && paths.some((path) => Path.equal(path, alternativePaths[0]))) {
       alternativePaths.shift();
     }
+
+    if (alternativePaths.length === 0) {
+      break;
+    }
+
     paths.push(alternativePaths[0]);
+    alternativePaths.splice(0, 1);
   }
-  return paths.concat(alternativePaths);
+  return keepCandidates ? paths.concat(alternativePaths) : paths;
 }

@@ -3,7 +3,11 @@
 }
 
 .sidenav {
-  width: 200px;
+  width: 220px;
+}
+
+.sidenav-wrap {
+  margin: 0.5em;
 }
 
 .sidenav .mat-toolbar {
@@ -16,8 +20,20 @@
   z-index: 1;
 }
 
+.toolbar-icon {
+  padding: 0 0.3em;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.hidden {
+  display: none;
+}
+
 #map {
-  height: 92%;
+  height: calc(100% - 64px);
   padding: 0;
 }
 
@@ -82,13 +98,24 @@ mat-divider {
 
 .sidenav-route-info {
   font-size: 80%;
+  text-align: left;
 }
 
-.sidenav-route-info h3 {
-  margin-bottom: 0.3em;
+.sidenav-route-name {
+  font-weight: bold;
+  font-size: 115%;
+  margin-right: 0.8em;
 }
 
 .sidenav-route-costs {
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
   margin: 0;
+}
+
+.sidenav-wrap form mat-form-field {
+  margin-bottom: 1em;
+}
+
+mat-error {
+  color: darkorange;
 }

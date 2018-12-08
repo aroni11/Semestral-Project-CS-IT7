@@ -1,10 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { geoJSON, icon, latLng, Map, marker, point, tileLayer } from 'leaflet';
+import { GeoJSON, geoJSON, icon, latLng, LeafletMouseEvent, Map, Marker, marker, point, Polygon, tileLayer } from 'leaflet';
 import { MatSidenav, MatSnackBar } from '@angular/material';
 import { PathsService } from './paths.service';
+import { SkylineComponent } from './skyline/skyline.component';
+import { SettingsComponent } from './settings/settings.component';
 
 @Component({
   selector: 'app-root',
@@ -13,14 +15,18 @@ import { PathsService } from './paths.service';
 })
 export class AppComponent {
   @ViewChild('drawer') sidebar: MatSidenav;
+  @ViewChild(SkylineComponent) private skyline: SkylineComponent;
+  @ViewChild(SettingsComponent) private settings: SettingsComponent;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
       map(result => result.matches)
     );
 
-  garMap;
-  pickedPoint;
+  displayedContent = 'map';
+
+  garMap: Map;
+  pickedPoint: string;
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -37,16 +43,20 @@ export class AppComponent {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   });
 
-  start;
-  startComputed;
-  end;
-  endComputed;
+  start: Marker;
+  startComputed: Marker;
+  end: Marker;
+  endComputed: Marker;
+  boundaryRectangle: GeoJSON<Polygon>;
   routes = [];
+
+  skylineData = [];
   routesProperties = [];
   palette = ['#002db3', '#0033cc', '#0039e6', '#0040ff', '#1a53ff', '#3366ff',
-    '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff', '#e6ecff'];
+    '#4d79ff', '#668cff', '#809fff', '#99b3ff', '#b3c6ff', '#ccd9ff'];
   currentColor = 0;
 
+  subscription: Subscription;
   loading = -1;
 
   // Layers control object with our two base layers and the three overlay layers
@@ -68,9 +78,12 @@ export class AppComponent {
 
   togglePick(garPoint: string): void {
     if (this.pickedPoint === garPoint) {
+      this.snackBar.dismiss();
       this.pickedPoint = undefined;
     } else {
       this.pickedPoint = garPoint;
+      this.displayedContent = 'map';
+      this.snackBar.open('Click on the map to set the point');
     }
     this.isHandset$.subscribe(
       (opened) => {
@@ -79,16 +92,13 @@ export class AppComponent {
         }
       }
     );
-    this.snackBar.open('Click on the map to set the point', null, {
-      duration: 5000
-    });
   }
 
-  onMapReady(garMap: Map) {
+  onMapReady(garMap: Map): void {
     this.garMap = garMap;
   }
 
-  mapClick(e) {
+  mapClick(e: LeafletMouseEvent): void {
     this.snackBar.dismiss();
     if (this.pickedPoint === 'start' && !this.start) {
       this.start = createMarker(e.latlng, 'green');
@@ -106,91 +116,127 @@ export class AppComponent {
     this.pickedPoint = undefined;
   }
 
-  deletePoint(garPoint, name: string): void {
-    garPoint.removeFrom(this.garMap); // TODO
+  deletePoint(garPoint: Marker, name: string): void {
+    garPoint.removeFrom(this.garMap);
     delete this.layersControl.overlays[name];
   }
 
   generatePaths(): void {
     this.loading = 0;
-    this.snackBar.open('Finding the nearest road nodes...', null, {
-      duration: 5000
-    });
-    const subscription = this.pathsService.getPaths([
-      this.start.getLatLng().lng,
-      this.start.getLatLng().lat
-    ], [
-      this.end.getLatLng().lng,
-      this.end.getLatLng().lat
-    ]).subscribe((chunk) => {
+    this.generationMessage('Finding the nearest road nodes...');
+    this.clearComputedPoints();
+
+    this.subscription = this.pathsService.getPaths([
+        this.start.getLatLng().lng,
+        this.start.getLatLng().lat
+      ], [
+        this.end.getLatLng().lng,
+        this.end.getLatLng().lat
+      ],
+      this.settings.simplificationFormControl.value,
+      this.settings.topKFormControl.value,
+      this.settings.maxNearestFormControl.value,
+      this.settings.mbrMarginFormControl.value,
+      this.settings.selectedCostFunction,
+      this.settings.skyline,
+      this.settings.yenKeep
+    ).subscribe((chunk) => {
         const nextObject = chunk as unknown as object;
         const status = nextObject['status'];
         const data = nextObject['data'];
 
         this.loading += this.addProgress(status);
 
-        if (status === 'error') {
-          console.log('Error caught!', data);
-          this.loading = -1;
-          this.snackBar.open(`An error occurred: ${data}`, null, {
-            duration: 5000
-          });
-          subscription.unsubscribe();
-        } else if (status === 'finished') {
-          this.loading = -1;
-          subscription.unsubscribe();
-          const paths = JSON.parse(data);
-
-          this.clearMapData();
-          const points = paths.features.filter((feature) => feature.geometry.type === 'Point');
-          const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString').slice(0, 20);
-
-          this.addPoints(points);
-
-          this.addPaths(altPaths);
-
-          for (const route of this.routes.reverse()) { // make sure #0 is on top
-            route.addTo(this.garMap);
-          }
-
-          this.routesProperties = altPaths.map((path) => path.properties);
-
-          this.garMap.fitBounds(this.routes[0].getBounds(), { // recenter the map
-            padding: point(24, 24),
-            animate: true
-          });
+        switch (status) {
+          case 'error':
+            this.cancelGenerating(`An error occurred: ${data}`);
+            break;
+          case 'foundNearestRoads':
+            this.addPoints([data.computedStart, data.computedEnd]);
+            break;
+          case 'computedBoundaryRectangle':
+            this.addPolygon(data);
+            this.garMap.fitBounds(this.boundaryRectangle.getBounds());
+            break;
+          case 'foundTopK':
+            this.skylineData = data;
+            break;
+          case 'computedSkyline':
+            // console.log(data);
+            break;
+          case 'finished':
+            this.finishGeneration(data);
+            break;
         }
       },
       (error) => {
-        console.log('Error caught!', error);
-        this.loading = -1;
-        this.snackBar.open(`An error occurred: ${error.message}`, null, {
-          duration: 5000
-        });
-        subscription.unsubscribe();
+        this.cancelGenerating(`An error occurred: ${error.message}`);
       });
+  }
+
+  finishGeneration(data: string): void {
+    this.loading = -1;
+    this.subscription.unsubscribe();
+    const paths = JSON.parse(data);
+
+    const points = paths.features.filter((feature) => feature.geometry.type === 'Point').slice(0, 2);
+    const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString').slice(0, 20);
+
+    this.clearMapData();
+
+    this.addPoints(points);
+
+    this.addPaths(altPaths);
+
+    for (const route of this.routes.reverse()) { // make sure #0 is on top
+      route.addTo(this.garMap);
+    }
+
+    this.routesProperties = altPaths.map((path) => path.properties);
+
+    this.garMap.fitBounds(this.routes[0].getBounds(), { // recenter the map
+      padding: point(24, 24),
+      animate: true
+    });
+  }
+
+  cancelGenerating(message: string = 'Path generation stopped'): void {
+    console.log(message);
+    this.loading = -1;
+    if (this.boundaryRectangle) {
+      this.boundaryRectangle.removeFrom(this.garMap);
+    }
+    this.snackBar.open(message, 'Close');
+
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+    }
   }
 
   pickColor(): string {
     return this.currentColor + 1 === this.palette.length ? this.palette[this.currentColor] : this.palette[this.currentColor++];
   }
 
-  setPoint(p, name: string): void {
+  setPoint(mapPoint: Marker, name: string): any {
     switch (name) {
       case 'Original start':
-        return this.start = p;
+        return this.start = mapPoint;
       case 'Original end':
-        return this.end = p;
+        return this.end = mapPoint;
       case 'Computed start':
-        return this.startComputed = p;
+        return this.startComputed = mapPoint;
       case 'Computed end':
-        return this.endComputed = p;
+        return this.endComputed = mapPoint;
       default:
         return;
     }
   }
 
-  clearMapData(): void {
+  clearMapData(computed: boolean = false): void {
+    if (this.boundaryRectangle) {
+      this.boundaryRectangle.removeFrom(this.garMap);
+    }
+
     for (const route of this.routes) {
       route.removeFrom(this.garMap);
     }
@@ -203,6 +249,12 @@ export class AppComponent {
     if (this.end) {
       this.deletePoint(this.end, 'Original end');
     }
+    if (computed) {
+      this.clearComputedPoints();
+    }
+  }
+
+  clearComputedPoints(): void {
     if (this.startComputed) {
       this.deletePoint(this.startComputed, 'Computed start');
     }
@@ -242,45 +294,63 @@ export class AppComponent {
     });
   }
 
+  addPolygon(polygon): void {
+    this.boundaryRectangle = geoJSON(polygon).bindPopup(() => 'Boundary rectangle').addTo(this.garMap);
+    this.layersControl.overlays['Boundary rectangle'] = this.boundaryRectangle;
+  }
+
   addProgress(step: string): number {
     switch (step) {
       case 'foundNearestRoads':
-        this.snackBar.open('Computing the boundary rectangle...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Computing the boundary rectangle...');
         return 20;
       case 'computedBoundaryRectangle':
-        this.snackBar.open('Finding all roads within the boundary rectangle...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Finding all roads within the boundary rectangle...');
         return 5;
       case 'foundRoadsWithin':
-        this.snackBar.open('Building the graph...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Building the graph...');
         return 40;
       case 'builtGraph':
-        this.snackBar.open('Simplifying the graph...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Simplifying the graph...');
         return 25;
       case 'simplifiedGraph':
-        this.snackBar.open('Finding the top K paths...', null, {
-          duration: 100000
-        });
+        this.generationMessage('Finding the top K paths...');
         return 5;
       case 'foundTopK':
+        this.generationMessage('Computing the skyline...');
+        return 10;
+      case 'computedSkyline':
         this.snackBar.open('Done!', null, {
           duration: 3000
         });
-        return 15;
+        return 5;
       default:
         return 0;
     }
   }
+
+  generationMessage(message: string): void {
+    this.snackBar
+      .open(message, 'Cancel')
+      .afterDismissed()
+      .subscribe(info => {
+        if (info.dismissedByAction === true) {
+          this.cancelGenerating();
+        }
+      });
+  }
+
+  changeContent(name: string): void {
+    this.displayedContent = name;
+    if (name === 'skyline') {
+      this.skyline.drawSkyline(this.skylineData);
+    }
+    window.dispatchEvent(new Event('resize'));
+    this.garMap.invalidateSize();
+  }
 }
 
-function createMarker(latlng, iconType: string, drag: boolean = true) {
+function createMarker(latlng, iconType: string, drag: boolean = true): Marker {
   let markerIcon: string;
   switch (iconType) {
     case 'red':
