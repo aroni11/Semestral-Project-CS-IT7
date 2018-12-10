@@ -94,27 +94,35 @@ export function pathsListener(socket: any) {
       socket.emit('message', {
         status: 'simplifiedGraph'
       });
-      setTimeout(() => { // TODO simplifiedGraph status not sent otherwise
-        const paths = simplified.topK(startNode._id, endNode._id, dijkstra, costFunction, topK, yenKeep);
-        console.log('foundTopK', (Date.now() - t0) / 1000);
-        socket.emit('message', {
-          status: 'foundTopK',
-          data: paths.map((path) => path.evaluate().getCosts)
-        });
+      setTimeout(() => {
+        try {
+          const paths = simplified.topK(startNode._id, endNode._id, dijkstra, costFunction, topK, yenKeep);
+          console.log('foundTopK', (Date.now() - t0) / 1000);
+          socket.emit('message', {
+            status: 'foundTopK',
+            data: paths.map((path) => path.evaluate().getCosts)
+          });
 
-        const pathsSkyline = applySkyline ? skyline(paths) : paths;
-        console.log('computedSkyline', (Date.now() - t0) / 1000);
-        socket.emit('message', {
-          status: 'computedSkyline',
-          data: pathsSkyline.map((path) => path.evaluate().getCosts)
-        });
+          const pathsSkyline = applySkyline ? skyline(paths) : paths;
+          console.log('computedSkyline', (Date.now() - t0) / 1000);
+          socket.emit('message', {
+            status: 'computedSkyline',
+            data: pathsSkyline.map((path) => path.evaluate().getCosts)
+          });
 
-        const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));
-        console.log('finished', (Date.now() - t0) / 1000);
-        return socket.emit('message', {
-          status: 'finished',
-          data: response
-        });
+          const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));
+          console.log('finished', (Date.now() - t0) / 1000);
+          return socket.emit('message', {
+            status: 'finished',
+            data: response
+          });
+        } catch (e) {
+          console.log(e);
+          return socket.emit('message', {
+            status: 'error',
+            data: e.message
+          });
+        }
       }, 5000);
     } catch (e) {
       console.error(e);
