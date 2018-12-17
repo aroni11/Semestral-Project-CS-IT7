@@ -147,16 +147,11 @@ class EdgeCost {
     if (this.getSum() >= dominatee.getSum()) {
       return false;
     }
-    if (this.getCost('distance') >= dominatee.getCost('distance')) {
-      return false;
+    for (const key of Object.keys(this.costs)) {
+      if (this.getCost(key) > dominatee.getCost(key)) {
+        return false;
+      }
     }
-    if (this.getCost('time') >= dominatee.getCost('time')) {
-      return false;
-    }
-    // TODO
-    // if (this.getCost('road_cost') >= dominatee.getCost('road_cost')) {
-    //   return false;
-    // }
     return true;
   }
   /**
@@ -285,7 +280,5 @@ class EdgeCost {
     }
     this.costs.time = this.costs.distance / max_speed;
   }
-
 }
-
 export default EdgeCost;

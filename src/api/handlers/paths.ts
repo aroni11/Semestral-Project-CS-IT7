@@ -7,6 +7,7 @@ import {Coordinates, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} fr
 import graphBuilder from '../../algorithms/graph-builder';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import {skyline} from '../../algorithms/Skyline/SkylineFilter';
+import {skylineExperiment} from '../../performance/skylineExperiment';
 import {Node} from '../schema/node';
 
 export async function pathsHandler(req: Request, res: Response) {
@@ -42,6 +43,8 @@ export async function pathsHandler(req: Request, res: Response) {
     const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
 
     const pathsSkyline = skyline(paths);
+    // EXPERIMENT
+    skylineExperiment(simplified, startNode._id, endNode._id);
 
     const pathsCoordinates = pathsSkyline.map((path) => path.pathData.map((edge) => [
       edge.vertex.lng,
