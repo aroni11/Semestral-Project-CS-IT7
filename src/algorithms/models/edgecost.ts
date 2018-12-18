@@ -222,8 +222,9 @@ class EdgeCost {
     let max_speed: number;
     switch (road_type) {
       case 'motorway':
+      case 'motorway_link':
         this.costs.road_cost = 1;
-        max_speed = 100;
+        max_speed = 130;
         break;
       case 'trunk':
         this.costs.road_cost = 2;
@@ -232,10 +233,6 @@ class EdgeCost {
       case 'primary':
         this.costs.road_cost = 3;
         max_speed = 70;
-        break;
-      case 'motorway_link':
-        this.costs.road_cost = 4;
-        max_speed = 60;
         break;
       case 'secondary':
         this.costs.road_cost = 5;
@@ -274,6 +271,11 @@ class EdgeCost {
         max_speed = 15;
         break;
       case 'living_street':
+        this.costs.road_cost = 14;
+        max_speed = 15;
+        break;
+      case 'cycleway':
+      case 'footway':
         this.costs.road_cost = 14;
         max_speed = 15;
         break;
