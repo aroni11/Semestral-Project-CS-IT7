@@ -28,6 +28,13 @@ default (or you can run the command using npm). By default a new database called
 ## Running the server
 To successfully build and start the express server, simply use `npm run build` and `npm run start`. To avoid recompiling the project on every change, simply run the compiler in watch mode: `npm run watch-ts`. 
 
+If everything goes well you should see that the server outputs the following:
+
+`Server is up and listening on port 8000.`
+
+`Connected to Mongo!`
+
+
 The server will be available at `localhost:8000`. You can try entering `http://localhost:8000/api/list/nodes` 
 to your browser to verify that the server has successfully started and is available to accept connections. 
 
