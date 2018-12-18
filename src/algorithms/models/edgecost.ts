@@ -153,10 +153,9 @@ class EdgeCost {
     if (this.getCost('time') >= dominatee.getCost('time')) {
       return false;
     }
-    // TODO
-    // if (this.getCost('road_cost') >= dominatee.getCost('road_cost')) {
-    //   return false;
-    // }
+    if (this.getCost('road_cost') >= dominatee.getCost('road_cost')) {
+      return false;
+    }
     return true;
   }
   /**
