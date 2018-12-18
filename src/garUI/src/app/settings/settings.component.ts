@@ -50,7 +50,7 @@ export class SettingsComponent {
     'minimum',
     'maximum'
   ];
-  selectedCostFunction = this.costFunctions[2];
+  selectedCostFunction = this.costFunctions[0];
   skyline = true;
   yenKeep = true;
 
