@@ -5,10 +5,10 @@ import transformScale from '@turf/transform-scale';
 import {Request, Response} from 'express';
 import {Coordinates, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
+import {printDiversities} from '../../algorithms/helpers/paths-diversity';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import {skyline} from '../../algorithms/Skyline/SkylineFilter';
 import {Node} from '../schema/node';
-import {printDiversities} from "../../algorithms/helpers/paths-diversity";
 
 export async function pathsHandler(req: Request, res: Response) {
   if ( !req.body.coordinates

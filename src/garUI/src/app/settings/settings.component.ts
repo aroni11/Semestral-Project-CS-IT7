@@ -40,12 +40,15 @@ export class SettingsComponent {
   ]);
   matcher = new MyErrorStateMatcher();
   costFunctions = [
-    'Sqrt of time + distance',
-    'Sqrt of time * distance',
-    'Arithmetic mean',
-    'Geometric mean',
-    'Minimum',
-    'Maximum'
+    'sqrtMultiply',
+    'sqrtPlus',
+    'arithmeticMean',
+    'geometricMean',
+    'distance',
+    'time',
+    'roadType',
+    'minimum',
+    'maximum'
   ];
   selectedCostFunction = this.costFunctions[2];
   skyline = true;
