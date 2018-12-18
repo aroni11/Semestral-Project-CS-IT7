@@ -38,7 +38,7 @@ If everything goes well you should see that the server outputs the following:
 The server will be available at `localhost:8000`. You can try entering `http://localhost:8000/api/list/nodes` 
 to your browser to verify that the server has successfully started and is available to accept connections. 
 
-The endpoint should return the whole collection of nodes that imported in your locally hosted MongoDB.
+The endpoint should return the whole collection of nodes that was imported in your locally hosted MongoDB.
 
 ## Running the UI
 Attached to the paper you can find `client.zip` where you can find the frontend app that will connect to
