@@ -1,8 +1,9 @@
-import {CostFunction, PathFinder} from '../../../config';
+import {CostFunction, PathFinder, graphMaxCosts} from '../../../config';
 import Path from '../pathfinders/path';
 import yen from '../pathfinders/yen';
 import Edge from './edge';
 import Vertex from './vertex';
+import EdgeCost from "./edgecost";
 
 /**
  * Graph object for creating a sample graph using Vertex and Edge objects
@@ -13,11 +14,14 @@ export default class Graph {
    */
   private readonly verticesMap: Map<number, Vertex>;
 
+  maxCosts: EdgeCost;
+
   /**
    * Initializes new Map object for the Vertices displayed on the graph
    */
   constructor() {
     this.verticesMap = new Map<number, Vertex>();
+    this.maxCosts = EdgeCost.zero;
   }
 
   /**
@@ -119,6 +123,22 @@ export default class Graph {
     while (!next.done) {
       next.value.bypassNeighbors(start, end);
       next = it.next();
+    }
+  }
+  
+  computeMaxCosts():void {
+    for (const v of this.verticesMap.values()) {
+      for (const edge of v.neighbors) {
+        this.setMaxCost('distance', graphMaxCosts, edge.costs);
+        this.setMaxCost('time', graphMaxCosts, edge.costs);
+        this.setMaxCost('road_cost', graphMaxCosts, edge.costs);
+      }
+    }
+  }
+
+  private setMaxCost(costKey: string, maxCosts: EdgeCost, candidate: EdgeCost) {
+    if(maxCosts.getCost(costKey) < candidate.getCost(costKey)) {
+      maxCosts.setCost(costKey, candidate.getCost(costKey));
     }
   }
 }

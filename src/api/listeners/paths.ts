@@ -97,12 +97,13 @@ export function pathsListener(socket: any) {
       });
       setTimeout(() => {
         try {
-          const paths = simplified.topK(startNode._id, endNode._id, dijkstra, costFunction, topK, yenKeep);
+          const paths = simplified.topK(startNode._id, endNode._id, dijkstra, reducers.sqrtMultiply, topK, yenKeep);
           console.log('foundTopK', (Date.now() - t0) / 1000);
           socket.emit('message', {
             status: 'foundTopK',
             data: paths.map((path) => path.evaluate().getCosts)
           });
+          console.log(paths.length);
           printDiversities(paths);
           const pathsSkyline = applySkyline ? skyline(paths) : paths;
           console.log('computedSkyline', (Date.now() - t0) / 1000);
@@ -159,7 +160,7 @@ function getCostFunction(name: string): CostFunction {
     case 'Sqrt of time + distance':
       return reducers.sqrtTimePlusDistance;
     case 'Sqrt of time * distance':
-      return reducers.sqrtTimeByDistance;
+      return reducers.sqrtMultiply;
     case 'Arithmetic mean':
       return reducers.arithmeticMean;
     case 'Geometric mean':

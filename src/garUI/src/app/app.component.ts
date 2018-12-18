@@ -180,7 +180,7 @@ export class AppComponent {
     const paths = JSON.parse(data);
 
     const points = paths.features.filter((feature) => feature.geometry.type === 'Point').slice(0, 2);
-    const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString').slice(0, 20);
+    const altPaths = paths.features.filter((feature) => feature.geometry.type === 'LineString');
 
     this.clearMapData();
 
@@ -214,7 +214,7 @@ export class AppComponent {
   }
 
   pickColor(): string {
-    return this.currentColor + 1 === this.palette.length ? this.palette[this.currentColor] : this.palette[this.currentColor++];
+    return 'blue';
   }
 
   setPoint(mapPoint: Marker, name: string): any {

@@ -7,7 +7,7 @@ import {IWay} from './src/api/schema/way';
 /**
  * URI to running MongoDB instance
  */
-export const MONGO_URI = 'mongodb://localhost/test';
+export const MONGO_URI = 'mongodb://localhost/aalborg';
 
 /*
  * Options to be passed when connecting to MongoDB
@@ -22,12 +22,12 @@ export const SERVER_PORT = 8000;
 /*
  * Socket.io ping interval (how many ms before sending a new ping packet)
  */
-export const SOCKET_IO_PING_INTERVAL = 25000;
+export const SOCKET_IO_PING_INTERVAL = 2500000;
 
 /*
  * Socket.io ping timeout (how many ms without a pong packet to consider the connection closed)
  */
-export const SOCKET_IO_PING_TIMEOUT = 100000;
+export const SOCKET_IO_PING_TIMEOUT = 10000000;
 
 /*
  * A list of supported road types
@@ -93,3 +93,5 @@ export type PathFinder = (s: number, e: number, g: Graph, cf: CostFunction) => P
  * Define how a cost function should look like
  */
 export type CostFunction = (cost: EdgeCost) => number;
+
+export var graphMaxCosts: EdgeCost = EdgeCost.zero;

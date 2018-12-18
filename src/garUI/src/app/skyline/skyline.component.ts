@@ -47,7 +47,7 @@ export class SkylineComponent implements OnInit {
     // Add the points
     svg.append('g')
       .attr('class', 'series')
-      .style('fill', 'white')
+      .style('fill', '#000')
       .selectAll('.point')
       .data(series)
       .enter().append('circle')
