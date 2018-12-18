@@ -8,6 +8,7 @@ import graphBuilder from '../../algorithms/graph-builder';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import {skyline} from '../../algorithms/Skyline/SkylineFilter';
 import {Node} from '../schema/node';
+import {printDiversities} from "../../algorithms/helpers/paths-diversity";
 
 export async function pathsHandler(req: Request, res: Response) {
   if ( !req.body.coordinates
@@ -40,8 +41,10 @@ export async function pathsHandler(req: Request, res: Response) {
     const simplified = graph.simplifyGraph(startNode._id, endNode._id, SIMPLIFICATION_ROUNDS);
 
     const paths = simplified.topK(startNode._id, endNode._id, dijkstra, undefined, TOP_K_PATHS);
+    printDiversities(paths);
 
     const pathsSkyline = skyline(paths);
+    printDiversities(pathsSkyline);
 
     const pathsCoordinates = pathsSkyline.map((path) => path.pathData.map((edge) => [
       edge.vertex.lng,
