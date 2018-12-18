@@ -156,17 +156,23 @@ function computeScale(point1: Coordinates, point2: Coordinates, point3: Coordina
 
 function getCostFunction(name: string): CostFunction {
   switch (name) {
-    case 'Sqrt of time + distance':
-      return reducers.sqrtTimePlusDistance;
-    case 'Sqrt of time * distance':
-      return reducers.sqrtTimeByDistance;
-    case 'Arithmetic mean':
+    case 'sqrtMultiply':
+      return reducers.sqrtMultiply;
+    case 'sqrtPlus':
+      return reducers.sqrtPlus;
+    case 'arithmeticMean':
       return reducers.arithmeticMean;
-    case 'Geometric mean':
+    case 'geometricMean':
       return reducers.geometricMean;
-    case 'Minimum':
+    case 'distance':
+      return reducers.distance;
+    case 'time':
+      return reducers.time;
+    case 'roadType':
+      return reducers.roadCost;
+    case 'minimum':
       return reducers.minCost;
-    case 'Maximum':
+    case 'maximum':
       return reducers.maxCost;
     default:
       return undefined;
