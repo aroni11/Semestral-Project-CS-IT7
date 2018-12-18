@@ -6,6 +6,7 @@ import transformScale from '@turf/transform-scale';
 import {Coordinates, CostFunction, MAX_NEAREST_DISTANCE, PATH_POLYGON_MARGIN, SIMPLIFICATION_ROUNDS, TOP_K_PATHS} from '../../../config';
 import graphBuilder from '../../algorithms/graph-builder';
 import reducers from '../../algorithms/helpers/cost-reducers';
+import {printDiversities} from '../../algorithms/helpers/paths-diversity';
 import {dijkstra} from '../../algorithms/pathfinders/dijkstra';
 import Path from '../../algorithms/pathfinders/path';
 import {skyline} from '../../algorithms/Skyline/SkylineFilter';
@@ -102,14 +103,14 @@ export function pathsListener(socket: any) {
             status: 'foundTopK',
             data: paths.map((path) => path.evaluate().getCosts)
           });
-
+          printDiversities(paths);
           const pathsSkyline = applySkyline ? skyline(paths) : paths;
           console.log('computedSkyline', (Date.now() - t0) / 1000);
           socket.emit('message', {
             status: 'computedSkyline',
             data: pathsSkyline.map((path) => path.evaluate().getCosts)
           });
-
+          printDiversities(pathsSkyline);
           const response = JSON.stringify(generateResponse(start, end, startNode.loc.coordinates, endNode.loc.coordinates, pathsSkyline));
           console.log('finished', (Date.now() - t0) / 1000);
           return socket.emit('message', {
